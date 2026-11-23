@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ascenso · Física y Matemáticas</title>
+<meta name="description" content="App para estudiar Física y Matemáticas para el ascenso a Suboficial.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Saira:wght@400;500;600;700&display=swap">
+<style>
+/* VOICE: un compañero de instrucción: directo, animado, sin rollo.
+   IDEA: la cartilla de ascensos; cada pregunta acertada te acerca al siguiente empleo.
+   PICTURE: el emblema del empleo actual, grande, con la barra de experiencia hacia el siguiente.
+   COLOUR and TYPE: verde militar dominante, caqui de apoyo, latón como acento; Saira Stencil para rangos, Saira para el resto.
+   LAYOUT: banda del rango arriba, misión del día como gran botón, temas en filas con barra de dominio; el test ocupa la pantalla. */
+:root{color-scheme:light dark;
+--bg:light-dark(#eceee3,#11150c);--card:light-dark(#ffffff,#1a2013);--ink:light-dark(#1b2312,#e7ebdb);--mute:light-dark(#5a6449,#9ba58a);--line:light-dark(#d6dbc8,#2e3724);
+--ol:light-dark(#3f4f24,#25301a);--ol2:light-dark(#56693a,#3b4a28);--kh:light-dark(#d8cfa8,#6f6a4c);--br:#d9a521;--brd:light-dark(#9a7410,#e7bb45);
+--ok:light-dark(#2b7a40,#62c47a);--bad:light-dark(#b33a2c,#ec7564);--okbg:light-dark(#e2f1e5,#163020);--badbg:light-dark(#f8e2de,#3a1b16)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Saira,system-ui,sans-serif;overflow-x:clip}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--br);outline-offset:2px}
+.st{font-family:"Saira Stencil One",Saira,sans-serif;font-weight:400;letter-spacing:.01em}
+.wrap{max-width:1000px;margin:0 auto;padding:0 max(4vw,16px)}
+.band{background:var(--ol);color:#f2f0e3;padding:clamp(22px,4vw,44px) 0 clamp(26px,4vw,48px)}
+.hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(16px,3vw,36px);align-items:center}
+.ins{width:clamp(104px,16vw,150px);height:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+.hero h1{margin:0;font-size:clamp(34px,6vw,52px);line-height:1.05;text-wrap:balance}
+.hero .sub{margin:2px 0 12px;color:#d8d5bd}
+.xp{height:14px;border-radius:8px;background:rgba(255,255,255,.14);overflow:hidden}
+.xp i{display:block;height:100%;background:linear-gradient(90deg,#b98c14,var(--br));border-radius:8px;transition:width .6s}
+.xpl{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#d8d5bd;margin-top:6px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:22px}
+.stat{background:rgba(0,0,0,.18);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:12px}
+.stat b{font-size:26px;line-height:1;display:block}.stat span{font-size:13px;color:#d8d5bd}
+.ring{width:44px;height:44px;flex:none}
+.mis{margin-top:-26px;position:relative}
+.mbtn{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;text-align:left;border:0;border-radius:16px;padding:20px clamp(18px,3vw,28px);background:var(--br);color:#1f1a06;box-shadow:0 8px 22px rgba(60,45,0,.25)}
+.mbtn h2{margin:0;font-size:clamp(24px,4vw,32px);line-height:1.1}
+.mbtn p{margin:4px 0 0;font-size:15px}
+.go{font-weight:700;background:#1f1a06;color:var(--br);border-radius:12px;padding:12px 18px;white-space:nowrap}
+.mbtn.done{background:var(--kh)}
+h3{font-size:22px;margin:34px 0 12px}
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tab{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:8px 18px;min-height:44px;font-weight:600}
+.tab[aria-pressed=true]{background:var(--ol);border-color:var(--ol);color:#f2f0e3}
+.topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:10px}
+.tp{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:64px}
+.tp:hover{border-color:var(--ol2)}
+.tp strong{font-weight:600}.tp small{color:var(--mute);font-size:13px;white-space:nowrap}
+.bar{grid-column:1/-1;height:6px;border-radius:4px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--ol2)}
+.weak{font-size:12px;font-weight:700;color:var(--brd);margin-left:6px}
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+.tool{text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;min-height:96px}
+.tool strong{display:block;font-size:18px}.tool span{color:var(--mute);font-size:14px}
+.rank{list-style:none;margin:0;padding:0}.rr{display:grid;grid-template-columns:32px minmax(0,1fr) auto auto 44px;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line)}.rr:last-child{border-bottom:0}.rr .pos{font-weight:700;text-align:center}.rr .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rr .rkn{font-size:13px;color:var(--mute);white-space:nowrap}.rr .pts{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}.rr .stk{font-size:13px;color:var(--brd);text-align:right;white-space:nowrap}.rr.me{background:light-dark(#f6efd6,#2b2612);border-radius:8px}.rank .gap{text-align:center;color:var(--mute)}
+@media(max-width:600px){.rr{grid-template-columns:28px minmax(0,1fr) auto 40px}.rr .rkn{display:none}}
+.foot{color:var(--mute);font-size:13px;margin:34px 0 40px}
+/* quiz */
+.qtop{display:flex;align-items:center;gap:12px;padding:14px 0}
+.x{border:1px solid var(--line);background:var(--card);border-radius:10px;min-width:44px;min-height:44px;font-size:20px}
+.prog{flex:1;height:10px;background:var(--line);border-radius:6px;overflow:hidden}.prog i{display:block;height:100%;background:var(--ol2);transition:width .3s}
+.cnt{font-weight:600;white-space:nowrap}
+.chip{display:inline-block;font-size:13px;font-weight:600;background:var(--kh);color:#2a2a18;border-radius:999px;padding:3px 12px}
+.combo{background:var(--br);color:#1f1a06}
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,3vw,30px);margin-bottom:14px}
+.qtext{font-size:clamp(19px,2.6vw,23px);line-height:1.4;margin:12px 0 18px;font-weight:500}
+.opts{display:grid;gap:10px}.opts.let{grid-template-columns:repeat(auto-fit,minmax(70px,1fr))}.opts.let .op{grid-template-columns:1fr;justify-items:center;font-size:22px;font-weight:700}.opts.let .op>span:last-child{display:none}.opts.let .op .k{width:auto;height:auto;border:0;background:none;font-size:22px}
+.qtext img,.exp img{display:block;max-width:100%;height:auto;margin:8px 0;border-radius:8px;background:#fff}
+.exp a{color:var(--ink);font-weight:600}.qtext img,.exp img{cursor:zoom-in}#zoom{position:fixed;inset:0;z-index:50;background:rgba(10,14,6,.92);overflow:auto;padding:56px 12px 24px;display:flex;align-items:flex-start;justify-content:center}#zoom img{max-width:none;width:min(1400px,240vw);background:#fff;border-radius:8px}#zoom button{position:fixed;top:10px;right:10px;min-width:44px;min-height:44px;border-radius:10px;border:0;font-size:22px;background:#f2f0e3;color:#1b2312}.src{font-size:13px;color:var(--mute);margin-top:8px}
+.rev details>div{margin-top:10px}
+.op{display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;align-items:center;text-align:left;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:12px 14px;min-height:56px;font-size:18px}
+.op .k{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:var(--card);border:1px solid var(--line);font-weight:700;font-size:15px}
+.op:hover:not([disabled]){border-color:var(--ol2)}
+.op.ok{border-color:var(--ok);background:var(--okbg)}.op.bad{border-color:var(--bad);background:var(--badbg)}
+.op.pick{border-color:var(--ol2);background:var(--card)}
+.op[disabled]{cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btn{border:0;border-radius:12px;padding:12px 22px;min-height:48px;font-weight:700;background:var(--ol);color:#f2f0e3}
+.btn.alt{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.hint{margin-top:12px;padding:10px 14px;border-left:4px solid var(--br);background:light-dark(#fbf5e2,#2b2612);border-radius:6px}
+.exp{margin-top:14px;padding:14px 16px;border-radius:12px;background:var(--bg)}
+.exp b.v{font-size:18px}.exp.good b.v{color:var(--ok)}.exp.wrong b.v{color:var(--bad)}
+.fly{position:fixed;font-weight:700;color:var(--brd);font-size:22px;pointer-events:none;animation:fly 1s ease-out forwards}
+@keyframes fly{to{transform:translateY(-60px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.fly{animation:none;opacity:0}.xp i,.prog i{transition:none}}
+.mx{display:inline-flex;align-items:center;gap:6px;margin:8px 14px 0 0;vertical-align:middle}
+.mx table{border-left:2px solid currentColor;border-right:2px solid currentColor;border-radius:6px;border-collapse:separate;padding:2px 4px}
+.mx td{padding:2px 9px;text-align:right;font-variant-numeric:tabular-nums}
+/* results */
+.big{font-size:clamp(44px,9vw,72px);line-height:1;margin:6px 0}
+.rup{background:var(--br);color:#1f1a06;border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin:14px 0}
+.rup svg{width:64px;flex:none}
+.rev{margin-top:10px}.rev details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.rev summary{cursor:pointer;font-weight:500}
+/* fichas */
+.card3d{perspective:1200px;margin:10px 0}
+.flip{position:relative;width:100%;min-height:240px;border:0;padding:0;background:none;transform-style:preserve-3d;transition:transform .5s}
+.flip.on{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:18px;display:grid;place-items:center;text-align:center;padding:24px;backface-visibility:hidden;font-size:clamp(20px,3vw,26px)}
+.front{background:var(--ol);color:#f2f0e3}.back{background:var(--card);border:2px solid var(--ol2);transform:rotateY(180deg);font-weight:600}
+.face small{display:block;font-size:14px;opacity:.75;margin-top:8px;font-weight:400}
+@media (prefers-reduced-motion:reduce){.flip{transition:none}}
+@media(max-width:600px){.hero{grid-template-columns:1fr;justify-items:start}.stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.stat{flex-direction:column;align-items:flex-start;gap:4px;padding:8px 10px}.stat b{font-size:22px}.ring{display:none}.mbtn{grid-template-columns:1fr}.go{justify-self:start}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+{
+//GEN-START
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+const fmt=n=>{n=Math.round(n*1e4)/1e4;if(Object.is(n,-0))n=0;return(n<0?'−':'')+Math.abs(n).toLocaleString('es-ES',{maximumFractionDigits:4,useGrouping:false})};
+const P=n=>n<0?`(${fmt(n)})`:fmt(n);
+const U=(n,u)=>fmt(n)+' '+u;
+const sp=n=>String(n).replace(/-/g,'⁻').replace(/\d/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
+const sb=n=>String(n).replace(/\d/g,d=>'₀₁₂₃₄₅₆₇₈₉'[d]);
+const sci=(x,d=2)=>{if(!x)return'0';const s=x<0?'−':'';x=Math.abs(x);let e=Math.floor(Math.log10(x)+1e-9),m=x/10**e;m=Math.round(m*10**d)/10**d;if(m>=10){m/=10;e++}if(e>=0&&e<=3)return s+fmt(m*10**e);return s+(m===1?'':fmt(m)+'·')+'10'+sp(e)};
+const S_=(x,u)=>sci(x)+' '+u;
+const frac=(a,b)=>{if(b<0){a=-a;b=-b}const g=gcd(Math.abs(a),b)||1;a/=g;b/=g;return b===1?fmt(a):(a<0?'−':'')+Math.abs(a)+'/'+b};
+const poly=t=>{let s='';t.forEach(([c,v])=>{if(!c)return;const n=c<0,a=Math.abs(c),k=(a===1&&v)?'':fmt(a);s+=s?(n?' − ':' + '):(n?'−':'');s+=k+v});return s||'0'};
+const vec=v=>`(${v.map(fmt).join(', ')})`;
+const hm=h=>{const m=Math.round(h*60),H=Math.floor(m/60),M=m%60;return((H?H+' h':'')+(H&&M?' ':'')+(M?M+' min':''))||'0 min'};
+const M=(rows,l)=>`<span class="mx">${l?l+' =':''}<table>${rows.map(r=>'<tr>'+r.map(x=>`<td>${fmt(x)}</td>`).join('')+'</tr>').join('')}</table></span>`;
+const FILL=['Ninguna de las anteriores','Faltan datos para calcularlo','No tiene solución'];
+const vary=a=>{const m=a.match(/−?\d+(,\d+)?/);if(!m)return[];const v=parseFloat(m[0].replace('−','-').replace(',','.'));return[v*2,v+1,v-1,v/2,v*10,-v,v+2].map(x=>a.slice(0,m.index)+fmt(x)+a.slice(m.index+m[0].length)).filter(x=>!/^0\//.test(x))};
+const mk=(q,a,w,e,h)=>{a=String(a);const s=new Set([a]),o=[a];for(const x of [...w,...vary(a),...FILL]){const v=String(x);if(o.length>=4)break;if(!s.has(v)&&!/NaN|undefined|Infinity/.test(v)){s.add(v);o.push(v)}}return{q,a,o:shuffle(o),e,h}};
+const G10=' (g = 10 m/s²)';
+const T3=[[1,2,2,3],[2,3,6,7],[1,4,8,9],[2,6,9,11],[4,4,7,9],[2,2,1,3]];
+const sgn=v=>v.map(x=>x*pick([1,-1]));
+
+const TOP={m:[['ari','Números: fracciones, potencias y logaritmos'],['ecu','Ecuaciones, porcentajes e interés'],['tri','Trigonometría y geometría plana'],['mtx','Matrices'],['det','Determinantes'],['sis','Sistemas de ecuaciones'],['vec','Vectores en R³'],['geo','Geometría analítica del espacio'],['fun','Funciones y dominio'],['lim','Límites, continuidad y asíntotas'],['der','Derivadas'],['est','Estudio de una función'],['int','Integrales'],['sta','Estadística'],['pro','Probabilidad']],
+f:[['cie','Trabajo científico y unidades'],['mec','Cinemática'],['dyn','Dinámica, energía y movimiento circular'],['gra','Campo gravitatorio'],['elc','Campo eléctrico'],['mag','Campo magnético'],['ind','Inducción electromagnética'],['mas','Movimiento armónico simple'],['ond','Movimiento ondulatorio'],['feo','Fenómenos ondulatorios'],['luz','La luz'],['opt','Óptica geométrica'],['rel','Relatividad'],['cua','Física cuántica'],['nuc','Radiactividad']]};
+
+const G={
+ari:[
+()=>{const b=pick(['2','3','5','x','a']),m=R(2,7),n=R(2,6),p=R(1,5),e=m+n-p;return mk(`Simplifica: ${b}${sp(m)} · ${b}${sp(n)} ÷ ${b}${sp(p)}`,b+sp(e),[b+sp(m*n-p),b+sp(m+n+p),b+sp(m-n+p),b+sp(e+1)],`Misma base: al multiplicar se suman los exponentes y al dividir se restan → ${m} + ${n} − ${p} = ${e}.`,'aᵐ · aⁿ = aᵐ⁺ⁿ   y   aᵐ ÷ aⁿ = aᵐ⁻ⁿ')},
+()=>{const k=R(2,6),b=pick([2,3,5,6,7]),N=k*k*b;return mk(`Simplifica la raíz: √${N}`,`${k}√${b}`,[`${b}√${k}`,`${k*k}√${b}`,`${k}√${b*2}`,`${k+1}√${b}`],`${N} = ${k*k} · ${b} = ${k}² · ${b}, así que √${N} = ${k}√${b}.`,'Busca el mayor cuadrado perfecto que divida al número.')},
+()=>{const a=pick([2,3,4,5,10]),n=R(1,3),v=a**n;return mk(`Calcula ${a}${sp(-n)}`,`1/${v}`,[`−${v}`,`−1/${v}`,`1/${a*n}`,`${v}`],`Un exponente negativo invierte la base: ${a}${sp(-n)} = 1/${a}${sp(n)} = 1/${v}.`,'a⁻ⁿ = 1/aⁿ')},
+()=>{const a=pick([2,3,5]),m=R(2,4),n=R(2,3);return mk(`Simplifica: (${a}${sp(m)})${sp(n)}`,a+sp(m*n),[a+sp(m+n),a+sp(m**n),(a*n)+sp(m),a+sp(m*n+1)],`Potencia de una potencia: se multiplican los exponentes → ${m}·${n} = ${m*n}.`,'(aᵐ)ⁿ = aᵐ·ⁿ')},
+()=>{const b=pick([2,3,5,10]),k=b===2?R(1,6):R(1,4),N=b**k,L=b===10?'log':'log'+sb(b);return mk(`Calcula ${L} ${fmt(N)}`,String(k),[String(k+1),String(k-1||k+2),fmt(N/b),String(b*k)],`${b}${sp(k)} = ${fmt(N)}, así que ${L} ${fmt(N)} = ${k}.`,'log_b N es el exponente al que hay que elevar b para obtener N.')},
+()=>{const m=R(1,5),n=R(1,5),X=2**m,Y=2**n;return mk(`Calcula log₂ ${X} + log₂ ${Y}`,String(m+n),[String(m*n),String(m+n+1),fmt(X+Y),String(Math.abs(m-n))],`log₂ ${X} + log₂ ${Y} = log₂ (${X}·${Y}) = log₂ ${X*Y} = ${m+n}  (o directamente ${m} + ${n}).`,'log a + log b = log (a·b)')},
+()=>{const b=pick([2,3,10]),k=R(2,4),N=b**k,L=b===10?'log':'log'+sb(b);return mk(`Resuelve: ${L} x = ${k}`,`x = ${fmt(N)}`,[`x = ${fmt(b*k)}`,`x = ${fmt(k**b)}`,`x = ${fmt(N/b)}`,`x = ${fmt(N*b)}`],`Por definición, x = ${b}${sp(k)} = ${fmt(N)}.`,'log_b x = k  ⇔  x = bᵏ')},
+()=>{const b=R(2,6),d=R(2,6),a=R(1,5),c=R(1,5);return mk(`Calcula: ${a}/${b} + ${c}/${d}`,frac(a*d+c*b,b*d),[frac(a+c,b+d),frac(a*c,b*d),frac(a+c,b*d),frac(a*d+c*b+1,b*d)],`Común denominador ${b*d}: ${a*d}/${b*d} + ${c*b}/${b*d} = ${a*d+c*b}/${b*d} = ${frac(a*d+c*b,b*d)}.`,'a/b + c/d = (a·d + c·b) / (b·d), y simplifica.')},
+()=>{const a=R(2,9),b=R(2,6),c=R(2,6),d=R(1,9);return mk(`Calcula: ${a} + ${b} · ${c} − ${d}`,fmt(a+b*c-d),[fmt((a+b)*c-d),fmt(a+b*(c-d)),fmt(a+b+c-d),fmt(a+b*c+d)],`Primero la multiplicación: ${b}·${c} = ${b*c}. Luego de izquierda a derecha: ${a} + ${b*c} − ${d} = ${a+b*c-d}.`,'Orden: paréntesis, potencias, multiplicaciones y divisiones, sumas y restas.')}],
+ecu:[
+()=>{const x=R(-9,9)||3,a=R(2,9),b=R(-15,15)||4,c=a*x+b;return mk(`Resuelve: ${poly([[a,'x'],[b,'']])} = ${fmt(c)}`,`x = ${fmt(x)}`,[`x = ${fmt(-x)}`,`x = ${fmt((c+b)/a)}`,`x = ${fmt(x+1)}`,`x = ${fmt(c-b)}`],`${a}x = ${fmt(c)} ${b<0?'+':'−'} ${Math.abs(b)} = ${fmt(c-b)} → x = ${fmt(c-b)} / ${a} = ${fmt(x)}.`,'Deja la x sola: pasa el número al otro lado (cambiando el signo) y luego divide.')},
+()=>{let r1=R(-6,6),r2=R(-6,6);if(r1===r2)r2=r1+R(1,4);const s=r1+r2,p=r1*r2,u=Math.min(r1,r2),v=Math.max(r1,r2),D=s*s-4*p,f=(a,b)=>`x = ${fmt(Math.min(a,b))} y x = ${fmt(Math.max(a,b))}`;return mk(`Resuelve: ${poly([[1,'x²'],[-s,'x'],[p,'']])} = 0`,f(u,v),[f(-u,-v),f(u,-v),f(-u,v),f(u+1,v+1)],`Δ = b² − 4ac = ${s*s} ${p<0?'+':'−'} ${Math.abs(4*p)} = ${D}; √Δ = ${Math.sqrt(D)}. x = (${fmt(s)} ± ${Math.sqrt(D)}) / 2 → ${fmt(u)} y ${fmt(v)}. Truco: suman ${fmt(s)} y multiplican ${fmt(p)}.`,'x = (−b ± √(b² − 4ac)) / 2a')},
+()=>{const a=pick([1,2,3,-1]),b=R(-8,8),c=R(-9,9),D=b*b-4*a*c,ans=D>0?'Dos soluciones reales distintas':D===0?'Una solución real (doble)':'Ninguna solución real';return mk(`¿Cuántas soluciones reales tiene ${poly([[a,'x²'],[b,'x'],[c,'']])} = 0?`,ans,['Dos soluciones reales distintas','Una solución real (doble)','Ninguna solución real','Infinitas soluciones'],`Δ = b² − 4ac = ${b*b} ${4*a*c<0?'+':'−'} ${Math.abs(4*a*c)} = ${fmt(D)}. ${D>0?'Δ > 0 → dos soluciones.':D===0?'Δ = 0 → una solución doble.':'Δ < 0 → no hay soluciones reales.'}`,'Mira el signo del discriminante Δ = b² − 4ac.')},
+()=>{const p=pick([5,10,12,15,20,25,30,40,75]),N=20*R(2,40),v=p*N/100;return mk(`¿Cuánto es el ${p} % de ${fmt(N)}?`,fmt(v),[fmt(N/p),fmt(v*10),fmt(N-v),fmt(v+p)],`${p} % de ${fmt(N)} = ${fmt(N)} · ${p}/100 = ${fmt(v)}.`,'x % de N = N · x / 100')},
+()=>{const p=pick([10,20,30,50]),t=-(p*p)/100;return mk(`Un precio sube un ${p} % y después baja un ${p} %. ¿Variación total?`,`${fmt(t)} %`,['0 %',`${fmt(-p/2)} %`,`${fmt(-2*p)} %`,`+${fmt(p*p/100)} %`],`Factores: ${fmt(1+p/100)} · ${fmt(1-p/100)} = ${fmt((1+p/100)*(1-p/100))} → ${fmt(t)} %. No vuelve al precio inicial.`,'Encadena porcentajes multiplicando los factores (1 + p) y (1 − p).')},
+()=>{const w=pick([2,3,4,5,6]),d=pick([6,8,10,12,15,20,24,30]),T=w*d,c=[2,3,4,5,6,8,10,12].filter(x=>x!==w&&T%x===0),w2=c.length?pick(c):w*2;return mk(`${w} soldados montan un campamento en ${d} horas. ¿Cuánto tardarían ${w2} soldados al mismo ritmo?`,U(T/w2,'h'),[U(d*w2/w,'h'),U(d,'h'),U(d+w-w2,'h'),U(T,'h')],`Proporción inversa (más soldados, menos tiempo): ${w}·${d} = ${T} horas-soldado → ${T}/${w2} = ${fmt(T/w2)} h.`,'Regla de tres inversa: a₁·t₁ = a₂·t₂')},
+()=>{const C=1000*R(1,12),r=pick([2,3,4,5,6]),t=R(1,5),I=C*r*t/100;return mk(`¿Qué interés simple producen ${fmt(C)} € al ${r} % anual durante ${t} ${t===1?'año':'años'}?`,U(I,'€'),[U(C*r/100,'€'),U(C+I,'€'),U(C*r*t,'€'),U(I/2,'€')],`I = C·r·t/100 = ${fmt(C)}·${r}·${t}/100 = ${fmt(I)} €.`,'Interés simple: I = C · r · t / 100')},
+()=>{const rt=pick([1.1,1.2,1.25,0.85,0.9]),x=20*R(1,25);return mk(`Si 1 € = ${fmt(rt)} $, ¿cuántos dólares son ${x} €?`,U(x*rt,'$'),[U(x/rt,'$'),U(x+rt,'$'),U(x*rt*10,'$'),U(x,'$')],`Multiplica por el cambio: ${x} · ${fmt(rt)} = ${fmt(x*rt)} $.`,'€ → $: multiplica por el tipo de cambio; $ → €: divide.')}],
+tri:[
+()=>{const T={0:['0','1','0'],30:['1/2','√3/2','√3/3'],45:['√2/2','√2/2','1'],60:['√3/2','1/2','√3'],90:['1','0','No definida'],180:['0','−1','0']},ang=pick(Object.keys(T)),i=R(0,2),fn=['sen','cos','tg'][i],ans=T[ang][i];return mk(`¿Cuánto vale ${fn} ${ang}°?`,ans,shuffle(['0','1','1/2','√2/2','√3/2','√3','√3/3','−1']),`${fn} ${ang}° = ${ans}. Tabla: sen 30° = 1/2, sen 45° = √2/2, sen 60° = √3/2; el coseno va en orden inverso; tg = sen/cos.`,'sen 30°, 45°, 60° = 1/2, √2/2, √3/2; el coseno al revés.')},
+()=>{const d=pick([30,45,60,90,120,135,150,180,270,360]),g=gcd(d,180),n=d/g,m=180/g,F=(n,m)=>`${n===1?'':n}π${m===1?'':'/'+m} rad`;return mk(`Pasa ${d}° a radianes`,F(n,m),[F(m,n),F(n,m*2),`${d}π rad`,F(n*2,m)],`rad = grados · π/180 → ${d}·π/180 = ${F(n,m)}.`,'180° = π rad')},
+()=>{const[a,b,c]=pick([[3,4,5],[5,12,13],[8,15,17],[7,24,25]]),fn=pick(['sen','cos','tg']),ans=fn==='sen'?`${a}/${c}`:fn==='cos'?`${b}/${c}`:`${a}/${b}`;return mk(`En un triángulo rectángulo, el cateto opuesto a α mide ${a}, el contiguo ${b} y la hipotenusa ${c}. ¿Cuánto vale ${fn} α?`,ans,[`${a}/${c}`,`${b}/${c}`,`${a}/${b}`,`${b}/${a}`,`${c}/${a}`],`sen = opuesto/hipotenusa, cos = contiguo/hipotenusa, tg = opuesto/contiguo → ${fn} α = ${ans}.`,'sen = op/hip · cos = cont/hip · tg = op/cont')},
+()=>{const h=2*R(3,15),op=Math.random()<.5;return mk(`Triángulo rectángulo con hipotenusa ${h} cm. ¿Cuánto mide el cateto ${op?'opuesto al ángulo de 30°':'contiguo al ángulo de 60°'}?`,U(h/2,'cm'),[U(h,'cm'),U(h*.866,'cm'),U(h*2,'cm'),U(h/3,'cm')],op?`opuesto = h · sen 30° = ${h} · 1/2 = ${fmt(h/2)} cm.`:`contiguo = h · cos 60° = ${h} · 1/2 = ${fmt(h/2)} cm.`,'sen 30° = cos 60° = 1/2')},
+()=>{const[a,b,c]=pick([[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[12,16,20]]);return mk(`Los catetos de un triángulo rectángulo miden ${a} y ${b} m. ¿Hipotenusa?`,U(c,'m'),[U(a+b,'m'),U(c*c,'m'),U(c+1,'m'),U(Math.abs(b-a),'m')],`Pitágoras: h = √(${a}² + ${b}²) = √(${a*a} + ${b*b}) = √${c*c} = ${c} m.`,'h² = a² + b²')},
+()=>{const r=R(2,9),k=Math.random()<.5;return k?mk(`Área de un círculo de radio ${r} cm`,`${r*r}π cm²`,[`${2*r}π cm²`,`${r}π cm²`,`${r*r*2}π cm²`,`${r*r} cm²`],`A = π·r² = π·${r}² = ${r*r}π cm².`,'Círculo: A = π·r², L = 2π·r'):mk(`Longitud de una circunferencia de radio ${r} cm`,`${2*r}π cm`,[`${r*r}π cm`,`${r}π cm`,`${4*r}π cm`,`${2*r} cm`],`L = 2π·r = 2π·${r} = ${2*r}π cm.`,'Círculo: A = π·r², L = 2π·r')}],
+mtx:[
+()=>{const A=[[R(-3,4),R(-3,4)],[R(-3,4),R(-3,4)]],B=[[R(-3,4),R(-3,4)],[R(-3,4),R(-3,4)]],v=A[0][0]*B[0][0]+A[0][1]*B[1][0];return mk(`Si C = A·B, ¿cuánto vale el elemento c₁₁?<br>${M(A,'A')}${M(B,'B')}`,fmt(v),[fmt(A[0][0]*B[0][0]),fmt(A[0][0]*B[0][0]+A[0][1]*B[0][1]),fmt(A[0][0]+B[0][0]),fmt(A[0][0]*B[0][0]+A[1][0]*B[0][1])],`c₁₁ = fila 1 de A × columna 1 de B = ${P(A[0][0])}·${P(B[0][0])} + ${P(A[0][1])}·${P(B[1][0])} = ${fmt(v)}.`,'Fila de la primera matriz por columna de la segunda.')},
+()=>{const A=[[R(-3,4),R(-3,4)],[R(-3,4),R(-3,4)]],B=[[R(-3,4),R(-3,4)],[R(-3,4),R(-3,4)]],i=R(0,1),j=R(0,1),k=R(2,3),v=k*A[i][j]-B[i][j];return mk(`Calcula el elemento de la fila ${i+1}, columna ${j+1} de ${k}A − B:<br>${M(A,'A')}${M(B,'B')}`,fmt(v),[fmt(k*A[i][j]+B[i][j]),fmt(A[i][j]-B[i][j]),fmt(k*(A[i][j]-B[i][j])),fmt(k*A[j][i]-B[j][i]===v?v+1:k*A[j][i]-B[j][i])],`${k}·${P(A[i][j])} − ${P(B[i][j])} = ${fmt(v)}. La suma y el producto por un número se hacen elemento a elemento.`,'Opera posición a posición.')},
+()=>{const m=R(1,4),n=R(1,4),p=R(1,4);return mk(`A es ${m}×${n} y B es ${n}×${p}. ¿Qué dimensión tiene A·B?`,`${m}×${p}`,[`${n}×${n}`,`${p}×${m}`,`${m}×${n}`,`${n}×${p}`,`${m+1}×${p}`],`Filas de A × columnas de B: (${m}×${n})·(${n}×${p}) = ${m}×${p}.`,'(m×n)·(n×p) = m×p')},
+()=>{const A=[[R(-3,5),R(-3,5),R(-3,5)],[R(-3,5),R(-3,5),R(-3,5)]],i=R(0,1),j=R(0,2);return mk(`Si A es la matriz de abajo, ¿qué elemento ocupa la fila ${j+1}, columna ${i+1} de Aᵗ (traspuesta)?<br>${M(A,'A')}`,fmt(A[i][j]),[fmt(A[i][(j+1)%3]),fmt(A[1-i][j]),fmt(-A[i][j]),fmt(A[i][j]+1)],`Al trasponer, las filas pasan a columnas: (Aᵗ)₍${j+1},${i+1}₎ = a₍${i+1},${j+1}₎ = ${fmt(A[i][j])}.`,'(Aᵗ)ᵢⱼ = aⱼᵢ')}],
+det:[
+()=>{const[a,b,c,d]=[R(-5,6),R(-5,6),R(-5,6),R(-5,6)],D=a*d-b*c;return mk(`Calcula el determinante:<br>${M([[a,b],[c,d]])}`,fmt(D),[fmt(a*d+b*c),fmt(b*c-a*d),fmt(a*d),fmt(a+d)],`|A| = a·d − b·c = ${P(a)}·${P(d)} − ${P(b)}·${P(c)} = ${fmt(a*d)} − ${P(b*c)} = ${fmt(D)}.`,'Diagonal principal menos diagonal secundaria.')},
+()=>{const A=[0,1,2].map(()=>[R(-2,3),R(-2,3),R(-2,3)]),[[a,b,c],[d,e,f],[g,h,i]]=A,p=a*e*i+b*f*g+c*d*h,n=c*e*g+a*f*h+b*d*i,D=p-n;return mk(`Calcula el determinante (regla de Sarrus):<br>${M(A)}`,fmt(D),[fmt(p+n),fmt(-D),fmt(p),fmt(D+2)],`Productos que suman: ${P(a*e*i)} + ${P(b*f*g)} + ${P(c*d*h)} = ${fmt(p)}. Productos que restan: ${P(c*e*g)} + ${P(a*f*h)} + ${P(b*d*i)} = ${fmt(n)}. |A| = ${fmt(p)} − ${P(n)} = ${fmt(D)}.`,'Sarrus: diagonal principal y sus paralelas suman; diagonal secundaria y sus paralelas restan.')},
+()=>{const n=pick([2,3]),d=pick([-3,-2,2,3,4,5]),k=pick([2,3]);return mk(`A es una matriz ${n}×${n} con |A| = ${d}. ¿Cuánto vale |${k}A|?`,fmt(k**n*d),[fmt(k*d),fmt(k*n*d),fmt(d),fmt(k**(n+1)*d)],`Al multiplicar la matriz por ${k}, cada una de sus ${n} filas queda multiplicada por ${k}: |${k}A| = ${k}${sp(n)}·${P(d)} = ${fmt(k**n*d)}.`,'|k·A| = kⁿ·|A| para una matriz n×n.')},
+()=>{const a=pick([-4,-2,2,3,4,5]),b=pick([-3,-2,2,3,5]),t=R(0,2);return t===0?mk(`Si |A| = ${a} y |B| = ${b}, ¿cuánto vale |A·B|?`,fmt(a*b),[fmt(a+b),fmt(a*b*2),frac(a,b),fmt(-a*b)],`|A·B| = |A|·|B| = ${P(a)}·${P(b)} = ${fmt(a*b)}.`,'El determinante de un producto es el producto de determinantes.'):t===1?mk(`Si |A| = ${a}, ¿cuánto vale |A⁻¹|?`,frac(1,a),[fmt(-a),fmt(a),frac(-1,a),fmt(a*a)],`|A⁻¹| = 1/|A| = ${frac(1,a)}.`,'|A⁻¹| = 1 / |A|'):mk(`Si |A| = ${a}, ¿cuánto vale |Aᵗ|?`,fmt(a),[fmt(-a),frac(1,a),fmt(a*a),'0'],`Trasponer no cambia el determinante: |Aᵗ| = |A| = ${fmt(a)}.`,'|Aᵗ| = |A|')}],
+sis:[
+()=>{let x,y,a1,b1,a2,b2;do{x=R(-5,6);y=R(-5,6);a1=R(1,5);b1=pick([-3,-2,-1,1,2,3,4]);a2=pick([-2,-1,1,2,3]);b2=R(1,5)}while(a1*b2-a2*b1===0);const c1=a1*x+b1*y,c2=a2*x+b2*y,D=a1*b2-a2*b1,f=(p,q)=>`x = ${fmt(p)}, y = ${fmt(q)}`;return mk(`Resuelve el sistema:<br>${poly([[a1,'x'],[b1,'y']])} = ${fmt(c1)}<br>${poly([[a2,'x'],[b2,'y']])} = ${fmt(c2)}`,f(x,y),[f(y,x),f(-x,y),f(x,-y),f(x+1,y-1)],`Por Cramer: D = ${a1}·${b2} − ${P(a2)}·${P(b1)} = ${D}. x = (${P(c1)}·${b2} − ${P(c2)}·${P(b1)}) / ${D} = ${fmt(x)}; y = (${a1}·${P(c2)} − ${P(a2)}·${P(c1)}) / ${D} = ${fmt(y)}.`,'Reducción: multiplica una ecuación para que, al sumarlas, desaparezca una incógnita.')},
+()=>{const c=pick([[2,2,2,'compatible determinado'],[3,3,3,'compatible determinado'],[2,2,3,'compatible indeterminado'],[1,1,3,'compatible indeterminado'],[2,3,3,'incompatible'],[1,2,2,'incompatible']]);return mk(`Un sistema de ${c[2]} incógnitas tiene rango(A) = ${c[0]} y rango(A*) = ${c[1]}. Es…`,c[3],['compatible determinado','compatible indeterminado','incompatible','homogéneo'],`Rouché-Fröbenius: si rg A ≠ rg A* → incompatible; si son iguales y valen el nº de incógnitas → determinado; si son iguales pero menores → indeterminado.`,'Compara rg A, rg A* y el número de incógnitas.')},
+()=>{const z=R(-4,4),y=R(-4,4),x=R(-4,4),a=R(1,3),b=R(-2,3),c=R(-2,2),d=R(1,3),e=R(-2,2),f=R(1,3),f3=(p,q,r)=>`x = ${fmt(p)}, y = ${fmt(q)}, z = ${fmt(r)}`;return mk(`Resuelve (sistema escalonado):<br>${poly([[a,'x'],[b,'y'],[c,'z']])} = ${fmt(a*x+b*y+c*z)}<br>${poly([[d,'y'],[e,'z']])} = ${fmt(d*y+e*z)}<br>${poly([[f,'z']])} = ${fmt(f*z)}`,f3(x,y,z),[f3(z,y,x),f3(-x,y,z),f3(x,-y,z),f3(x,y,-z===z?z+1:-z)],`De abajo arriba: z = ${fmt(f*z)}/${f} = ${fmt(z)}; luego ${poly([[d,'y']])} = ${fmt(d*y+e*z)} − ${P(e*z)} → y = ${fmt(y)}; por último x = ${fmt(x)}.`,'Sistema triangular: despeja desde la última ecuación hacia arriba (sustitución regresiva).')}],
+vec:[
+()=>{const t=pick(T3),v=sgn(t.slice(0,3));return mk(`Módulo del vector u = ${vec(v)}`,fmt(t[3]),[fmt(t[0]+t[1]+t[2]),fmt(t[3]**2),fmt(t[3]+1),`√${t[0]+t[1]+t[2]}`],`|u| = √(${v.map(x=>P(x)+'²').join(' + ')}) = √${t[3]**2} = ${t[3]}.`,'|u| = √(x² + y² + z²)')},
+()=>{const u=[R(-3,4),R(-3,4),R(-3,4)],v=[R(-3,4),R(-3,4),R(-3,4)],d=u[0]*v[0]+u[1]*v[1]+u[2]*v[2];return mk(`Producto escalar u·v con u = ${vec(u)} y v = ${vec(v)}`,fmt(d),[vec([u[0]*v[0],u[1]*v[1],u[2]*v[2]]),fmt(d+2),fmt(-d),fmt(u[0]+v[0]+u[1]+v[1]+u[2]+v[2])],`u·v = ${P(u[0])}·${P(v[0])} + ${P(u[1])}·${P(v[1])} + ${P(u[2])}·${P(v[2])} = ${fmt(d)}.${d===0?' Como da 0, son perpendiculares.':''}`,'u·v = u₁v₁ + u₂v₂ + u₃v₃ (da un número, no un vector).')},
+()=>{const a=pick([1,-1,2]),b=R(-3,3),c=R(-3,3),e=R(-3,3),f=R(-3,3);const k=-(b*e+c*f)/a;if(k%1)return G.vec[0]();return mk(`¿Para qué valor de k son perpendiculares u = ${vec([a,b,c])} y v = (k, ${fmt(e)}, ${fmt(f)})?`,`k = ${fmt(k)}`,[`k = ${fmt(-k)}`,`k = ${fmt(k+1)}`,`k = ${fmt(b*e+c*f)}`,`k = 0`],`Perpendiculares ⇔ u·v = 0: ${poly([[a,'k']])} + ${P(b)}·${P(e)} + ${P(c)}·${P(f)} = 0 → ${poly([[a,'k']])} ${b*e+c*f<0?'−':'+'} ${Math.abs(b*e+c*f)} = 0 → k = ${fmt(k)}.`,'Perpendiculares: producto escalar = 0.')},
+()=>{const u=[R(-2,3),R(-2,3),R(-2,3)],v=[R(-2,3),R(-2,3),R(-2,3)],w=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];return mk(`Producto vectorial u × v con u = ${vec(u)} y v = ${vec(v)}`,vec(w),[vec(w.map(x=>-x)),vec([u[0]*v[0],u[1]*v[1],u[2]*v[2]]),vec([w[0],-w[1],w[2]]),vec([w[2],w[1],w[0]])],`u × v = (u₂v₃ − u₃v₂, u₃v₁ − u₁v₃, u₁v₂ − u₂v₁) = ${vec(w)}. Es perpendicular a u y a v.`,'Desarrolla el determinante con i, j, k en la primera fila.')}],
+geo:[
+()=>{const t=pick(T3),d=sgn(t.slice(0,3)),A=[R(-4,4),R(-4,4),R(-4,4)],B=A.map((x,i)=>x+d[i]);return mk(`Distancia entre A${vec(A)} y B${vec(B)}`,fmt(t[3]),[fmt(t[0]+t[1]+t[2]),fmt(t[3]**2),fmt(t[3]+2),`√${t[0]+t[1]+t[2]}`],`AB = ${vec(d)} → d = √(${t[0]**2} + ${t[1]**2} + ${t[2]**2}) = √${t[3]**2} = ${t[3]}.`,'d(A,B) = |AB| = √((x₂−x₁)² + (y₂−y₁)² + (z₂−z₁)²)')},
+()=>{const A=[R(-6,6),R(-6,6),R(-6,6)],B=A.map(x=>x+2*R(-3,3)),Mp=A.map((x,i)=>(x+B[i])/2);return mk(`Punto medio del segmento A${vec(A)} – B${vec(B)}`,vec(Mp),[vec(B.map((x,i)=>(x-A[i])/2)),vec(A.map((x,i)=>x+B[i])),vec([Mp[0],Mp[2],Mp[1]]),vec(Mp.map(x=>x+1))],`M = ((x₁+x₂)/2, (y₁+y₂)/2, (z₁+z₂)/2) = ${vec(Mp)}.`,'Media de cada coordenada.')},
+()=>{const n=[R(-3,3)||1,R(-3,3),R(-3,3)||2],p=[R(-3,3),R(-3,3),R(-3,3)],D=-(n[0]*p[0]+n[1]*p[1]+n[2]*p[2]),f=d=>`${poly([[n[0],'x'],[n[1],'y'],[n[2],'z'],[d,'']])} = 0`;return mk(`Plano que pasa por P${vec(p)} con vector normal n = ${vec(n)}`,f(D),[f(-D),f(D+1),`${poly([[p[0],'x'],[p[1],'y'],[p[2],'z'],[n[0]*p[0]?-1:1,'']])} = 0`,f(0)],`ax + by + cz + D = 0 con (a,b,c) = n. Sustituyendo P: D = −(${P(n[0])}·${P(p[0])} + ${P(n[1])}·${P(p[1])} + ${P(n[2])}·${P(p[2])}) = ${fmt(D)}.`,'Plano: a(x−x₀) + b(y−y₀) + c(z−z₀) = 0 con n = (a, b, c)')},
+()=>{const t=pick(T3.slice(0,3)),n=sgn(t.slice(0,3)),p=[R(-3,3),R(-3,3),R(-3,3)],D=R(-9,9),num=Math.abs(n[0]*p[0]+n[1]*p[1]+n[2]*p[2]+D);return mk(`Distancia del punto P${vec(p)} al plano ${poly([[n[0],'x'],[n[1],'y'],[n[2],'z'],[D,'']])} = 0`,frac(num,t[3]),[fmt(num),frac(num,t[3]**2),frac(num+t[3],t[3]),frac(Math.abs(num-2*D),t[3])],`d = |a·x₀ + b·y₀ + c·z₀ + D| / √(a² + b² + c²) = ${num} / √${t[3]**2} = ${frac(num,t[3])}.`,'d(P, π) = |ax₀ + by₀ + cz₀ + D| / √(a² + b² + c²)')}],
+fun:[
+()=>{const a=R(-6,6),t=R(0,3),A=fmt(a),mA=fmt(-a),o=[`x ≥ ${A}`,`x > ${A}`,`ℝ − {${A}}`,`x ≤ ${A}`,`ℝ − {−${Math.abs(a)||1}, ${Math.abs(a)||1}}`,'ℝ',`x > ${mA}`];if(t===0)return mk(`Dominio de f(x) = √(${poly([[1,'x'],[-a,'']])})`,o[0],o,`Lo de dentro de la raíz debe ser ≥ 0: x ${a<0?'+':'−'} ${Math.abs(a)} ≥ 0 → x ≥ ${A}.`,'Raíz de índice par: radicando ≥ 0.');if(t===1)return mk(`Dominio de f(x) = 1/(${poly([[1,'x'],[-a,'']])})`,o[2],o,`El denominador no puede ser 0: x = ${A} queda fuera → ℝ − {${A}}.`,'Funciones racionales: quita los ceros del denominador.');if(t===2)return mk(`Dominio de f(x) = ln(${poly([[1,'x'],[-a,'']])})`,o[1],o,`El logaritmo solo existe para argumentos positivos: x ${a<0?'+':'−'} ${Math.abs(a)} > 0 → x > ${A}.`,'Logaritmo: argumento > 0 (estrictamente).');const b=Math.abs(a)||2;return mk(`Dominio de f(x) = 1/(x² − ${b*b})`,`ℝ − {−${b}, ${b}}`,[`ℝ − {${b}}`,`x > ${b}`,'ℝ',`ℝ − {${b*b}}`],`x² − ${b*b} = 0 → x = ±${b}. Esos dos valores quedan fuera.`,'Funciones racionales: quita los ceros del denominador.')},
+()=>{const c=R(1,9),b=R(1,5),t=pick(['par','impar','ninguna']),f=t==='par'?`x⁴ ${pick(['+','−'])} ${c}x²`:t==='impar'?`x³ ${pick(['+','−'])} ${b}x`:`x² + ${b}x`;return mk(`La función f(x) = ${f} es…`,t==='par'?'par (simétrica respecto al eje Y)':t==='impar'?'impar (simétrica respecto al origen)':'ni par ni impar',['par (simétrica respecto al eje Y)','impar (simétrica respecto al origen)','ni par ni impar','periódica'],t==='par'?'Solo potencias pares: f(−x) = f(x).':t==='impar'?'Solo potencias impares: f(−x) = −f(x).':'Mezcla potencias pares e impares: f(−x) no es ni f(x) ni −f(x).','Calcula f(−x) y compara con f(x).')},
+()=>{const a=R(1,3),b=R(-4,4),c=R(-5,5),k=R(-3,3),v=a*k*k+b*k+c;return mk(`Si f(x) = ${poly([[a,'x²'],[b,'x'],[c,'']])}, ¿cuánto vale f(${fmt(k)})?`,fmt(v),[fmt(-a*k*k+b*k+c),fmt(a*k*2+b*k+c),fmt(v+1),fmt(a*k*k-b*k+c)],`f(${fmt(k)}) = ${a}·${P(k)}² + ${P(b)}·${P(k)} + ${P(c)} = ${fmt(a*k*k)} + ${P(b*k)} + ${P(c)} = ${fmt(v)}.`,'Sustituye x por el número (con paréntesis si es negativo).')}],
+lim:[
+()=>{const a=R(1,6),b=R(1,6),n=R(1,3),m=pick([n,n,n+1,n-1].filter(x=>x>=1)),ans=n===m?frac(a,b):n<m?'0':'+∞',X=e=>e===1?'x':'x'+sp(e);return mk(`Calcula lím (x→+∞) (${a}${X(n)} + 1)/(${b}${X(m)} − 3)`,ans,[frac(a,b),'0','+∞',frac(b,a),'1'],n===m?`Mismo grado: el límite es el cociente de los coeficientes principales, ${a}/${b} = ${frac(a,b)}.`:n<m?'El denominador tiene mayor grado: el límite es 0.':'El numerador tiene mayor grado: el límite es +∞.','Compara los grados del numerador y del denominador.')},
+()=>{const a=R(-5,5)||2;return mk(`Calcula lím (x→${fmt(a)}) (x² − ${a*a})/(x ${a<0?'+':'−'} ${Math.abs(a)})`,fmt(2*a),['0','No existe',fmt(a),fmt(a*a)],`Da 0/0. Factoriza: x² − ${a*a} = (x − ${P(a)})(x + ${P(a)}). Simplifica y queda lím (x + ${P(a)}) = ${fmt(2*a)}.`,'Indeterminación 0/0 en cocientes de polinomios: factoriza y simplifica.')},
+()=>{const a=R(-5,5)||1,c=R(1,4),b=R(-4,4);if(c*a+b===0)return G.lim[0]();return Math.random()<.5?mk(`Asíntota vertical de f(x) = (${poly([[c,'x'],[b,'']])})/(x ${a<0?'+':'−'} ${Math.abs(a)})`,`x = ${fmt(a)}`,[`x = ${fmt(-a)}`,`y = ${fmt(c)}`,`x = ${fmt(c)}`,`y = ${fmt(a)}`],`El denominador se anula en x = ${fmt(a)} y el numerador no → asíntota vertical x = ${fmt(a)}.`,'Asíntota vertical: valores que anulan el denominador (y no el numerador).'):mk(`Asíntota horizontal de f(x) = (${poly([[c,'x'],[b,'']])})/(x ${a<0?'+':'−'} ${Math.abs(a)})`,`y = ${fmt(c)}`,[`y = ${fmt(a)}`,`x = ${fmt(a)}`,'y = 0',`y = ${fmt(b)}`],`Mismo grado: y = cociente de coeficientes principales = ${c}/1 = ${c}.`,'Asíntota horizontal: lím de f cuando x → ±∞.')}],
+der:[
+()=>{const a=R(1,3),b=R(-4,4),c=R(-6,6),d=R(-5,5),k=R(-2,3),fp=3*a*k*k+2*b*k+c,fv=a*k**3+b*k*k+c*k+d;return mk(`Si f(x) = ${poly([[a,'x³'],[b,'x²'],[c,'x'],[d,'']])}, ¿cuánto vale f′(${fmt(k)})?`,fmt(fp),[fmt(fv),fmt(3*a*k*k+b*k+c),fmt(a*k*k+b*k+c),fmt(fp+2)],`f′(x) = ${poly([[3*a,'x²'],[2*b,'x'],[c,'']])} → f′(${fmt(k)}) = ${3*a}·${P(k*k)} + ${2*b}·${P(k)} + ${P(c)} = ${fmt(fp)}.`,'(xⁿ)′ = n·xⁿ⁻¹ y la derivada de una constante es 0.')},
+()=>{const a=R(2,7),n=R(2,6),A=a*n,T=(c,e)=>`${c}${e===1?'x':e===0?'':'x'+sp(e)}`;return mk(`Deriva f(x) = ${T(a,n)}`,`f′(x) = ${T(A,n-1)}`,[`f′(x) = ${T(A,n)}`,`f′(x) = ${T(a,n-1)}`,`f′(x) = ${T(a*(n-1),n-1)}`,`f′(x) = ${T(a,n+1)}`],`Baja el exponente multiplicando y réstale 1: ${a}·${n} = ${A}; exponente ${n} − 1 = ${n-1} → ${T(A,n-1)}.`,'(a·xⁿ)′ = a·n·xⁿ⁻¹')},
+()=>{const b=R(-4,4),c=R(-4,4),x0=R(-2,3),m=2*x0+b,y0=x0*x0+b*x0+c,n=y0-m*x0,f=(p,q)=>`y = ${poly([[p,'x'],[q,'']])}`;return mk(`Recta tangente a f(x) = ${poly([[1,'x²'],[b,'x'],[c,'']])} en x = ${fmt(x0)}`,f(m,n),[f(m,y0),f(y0,n),f(-m,n),f(m,n+1)],`f(${fmt(x0)}) = ${fmt(y0)}; f′(x) = ${poly([[2,'x'],[b,'']])} → m = f′(${fmt(x0)}) = ${fmt(m)}. y − ${P(y0)} = ${fmt(m)}(x − ${P(x0)}) → ${f(m,n)}.`,'y − f(a) = f′(a)·(x − a)')},
+()=>{const tt=pick([['eˣ·x','eˣ·x + eˣ',['eˣ','eˣ·x','x·eˣ⁻¹'],'Regla del producto: (f·g)′ = f′g + fg′ → eˣ·x + eˣ·1.'],['sen(2x)','2cos(2x)',['cos(2x)','−2cos(2x)','2sen(2x)'],'Regla de la cadena: cos(2x)·(2x)′ = 2cos(2x).'],['ln(x²)','2/x',['1/x²','2x','1/(2x)'],'ln(x²) = 2·ln x → derivada 2/x (o por la cadena: 2x/x²).'],['e³ˣ','3e³ˣ',['e³ˣ','3x·e³ˣ','e³ˣ/3'],'Cadena: e³ˣ·3.'],['(x² + 1)³','6x(x² + 1)²',['3(x² + 1)²','3x(x² + 1)²','6x(x² + 1)³'],'Cadena: 3(x² + 1)²·2x = 6x(x² + 1)².']]);return mk(`Deriva f(x) = ${tt[0]}`,`f′(x) = ${tt[1]}`,tt[2].map(x=>'f′(x) = '+x),tt[3],'Producto: f′g + fg′ · Cadena: f′(g(x))·g′(x)')}],
+est:[
+()=>{const a=pick([1,2,-1,-2,3]),h=R(-4,4),b=-2*a*h,c=R(-6,6),k=a*h*h+b*h+c;return mk(`¿En qué x tiene f(x) = ${poly([[a,'x²'],[b,'x'],[c,'']])} su ${a>0?'mínimo':'máximo'}?`,`x = ${fmt(h)}`,[`x = ${fmt(-h)}`,`x = ${fmt(b)}`,`x = ${fmt(c)}`,`x = ${fmt(h+1)}`],`f′(x) = ${poly([[2*a,'x'],[b,'']])} = 0 → x = ${fmt(h)}. Como f″ = ${2*a} ${a>0?'> 0 es un mínimo':'< 0 es un máximo'}; f(${fmt(h)}) = ${fmt(k)}.`,'Puntos críticos: f′(x) = 0; el signo de f″ dice si es máximo o mínimo.')},
+()=>{const a=R(1,4);return mk(`Para f(x) = x³ − ${3*a*a}x, ¿dónde hay un máximo relativo?`,`x = ${-a}`.replace('-','−'),[`x = ${a}`,'x = 0',`x = ${3*a*a}`,`x = ${-3*a*a}`.replace('-','−')],`f′(x) = 3x² − ${3*a*a} = 0 → x = ±${a}. f″(x) = 6x: en x = −${a} es negativa (máximo) y en x = ${a} positiva (mínimo).`,'f′ = 0 y después el signo de f″.')},
+()=>{const k=R(-3,3),b=-3*k;return mk(`Punto de inflexión de f(x) = ${poly([[1,'x³'],[b,'x²'],[1,'']])}`,`x = ${fmt(k)}`,[`x = ${fmt(-k)}`,`x = ${fmt(b)}`,'x = 0'===`x = ${fmt(k)}`?'x = 1':'x = 0',`x = ${fmt(2*k)}`],`f″(x) = 6x ${b<0?'−':'+'} ${Math.abs(2*b)} = 0 → x = ${fmt(k)} (y f″ cambia de signo).`,'Inflexión: f″(x) = 0 con cambio de signo.')},
+()=>{const h=R(-4,4),a=pick([1,-1]);return mk(`¿En qué intervalo es creciente f(x) = ${poly([[a,'x²'],[-2*a*h,'x']])}?`,a>0?`(${fmt(h)}, +∞)`:`(−∞, ${fmt(h)})`,[`(−∞, ${fmt(h)})`,`(${fmt(h)}, +∞)`,`(${fmt(-h)}, +∞)`,'ℝ'],`f′(x) = ${poly([[2*a,'x'],[-2*a*h,'']])}, que es positiva para x ${a>0?'>':'<'} ${fmt(h)}.`,'Creciente donde f′(x) > 0.')}],
+int:[
+()=>{const a=2*R(1,4),b=R(-3,6),k=R(1,5),v=a*k*k/2+b*k;return mk(`Calcula ∫₀${sp(k)} (${poly([[a,'x'],[b,'']])}) dx`,fmt(v),[fmt(a*k+b),fmt(a*k*k+b*k),fmt(a*k*k/2),fmt(v+k)],`Primitiva: F(x) = ${poly([[a/2,'x²'],[b,'x']])}. Barrow: F(${k}) − F(0) = ${fmt(a/2*k*k)} + ${P(b*k)} = ${fmt(v)}.`,'∫ₐᵇ f(x) dx = F(b) − F(a)')},
+()=>{const n=R(1,5),t=R(1,4),a=t*(n+1),T=(c,e)=>`${c===1?'':c}${e===1?'x':'x'+sp(e)}`;return mk(`Calcula ∫ ${T(a,n)} dx`,`${T(t,n+1)} + C`,[`${T(a*n,Math.max(n-1,1))} + C`,`${T(a,n+1)} + C`,`${T(t,n)} + C`,`${T(a*(n+1),n+1)} + C`],`∫ xⁿ dx = xⁿ⁺¹/(n + 1) → ${a}·x${sp(n+1)}/${n+1} = ${T(t,n+1)} + C.`,'∫ xⁿ dx = xⁿ⁺¹ / (n + 1) + C')},
+()=>{const k=pick([3,6]),v=k**3/3;return mk(`Área bajo y = x² entre x = 0 y x = ${k}`,U(v,'u²'),[U(k*k,'u²'),U(k**3,'u²'),U(2*k,'u²'),U(v/2,'u²')],`∫₀${sp(k)} x² dx = [x³/3]₀${sp(k)} = ${k**3}/3 = ${fmt(v)} u².`,'El área (por encima del eje X) es la integral definida.')},
+()=>{const t=pick([['cos x','sen x + C',['−sen x + C','cos x + C','−cos x + C']],['sen x','−cos x + C',['cos x + C','−sen x + C','sen x + C']],['eˣ','eˣ + C',['x·eˣ + C','eˣ⁺¹ + C','ln x + C']],['1/x','ln |x| + C',['−1/x² + C','x⁻² + C','eˣ + C']],['e²ˣ','e²ˣ/2 + C',['2e²ˣ + C','e²ˣ + C','x·e²ˣ + C']]]);return mk(`Calcula ∫ ${t[0]} dx`,t[1],t[2],`Comprueba derivando: la derivada de ${t[1].replace(' + C','')} es ${t[0]}.`,'Integrar es lo contrario de derivar: busca la función cuya derivada es la del enunciado.')}],
+sta:[
+()=>{const arr=[];let m;do{arr.length=0;for(let i=0;i<5;i++)arr.push(R(2,10));m=arr.reduce((a,b)=>a+b)/5}while(m%1);const so=[...arr].sort((a,b)=>a-b),md=so[2],S=arr.reduce((a,b)=>a+b);return Math.random()<.4?mk(`Mediana de: ${arr.join(', ')}`,fmt(md),[fmt(m===md?m+1:m),fmt(so[1]),fmt(so[3]),fmt((so[0]+so[4])/2)],`Ordenados: ${so.join(', ')}. El valor central es ${md}.`,'Ordena los datos y toma el del centro.'):mk(`Media aritmética de: ${arr.join(', ')}`,fmt(m),[fmt(md),fmt(m+1),fmt(S),fmt(m-1)],`Suma = ${S}; entre 5 datos = ${fmt(m)}.`,'Suma todos los datos y divide entre cuántos hay.')},
+()=>{const m=R(4,9),d=pick([[-2,-1,1,2],[-3,-1,1,3],[-2,0,0,2],[-1,-1,1,1],[-4,0,2,2]]),x=shuffle(d.map(v=>m+v)),V=d.reduce((s,v)=>s+v*v,0)/4;return Math.random()<.6?mk(`Varianza de: ${x.join(', ')}`,fmt(V),[fmt(Math.sqrt(V)),fmt(V*4),fmt(V*4/3),fmt(m)],`Media = ${m}. Desviaciones: ${d.map(fmt).join(', ')}; sus cuadrados suman ${V*4}. σ² = ${V*4}/4 = ${fmt(V)}.`,'σ² = Σ(xᵢ − x̄)² / n'):mk(`Rango (recorrido) de: ${x.join(', ')}`,fmt(Math.max(...x)-Math.min(...x)),[fmt(Math.max(...x)),fmt(m),fmt(V),fmt(Math.max(...x)-Math.min(...x)+1)],`Rango = máximo − mínimo = ${Math.max(...x)} − ${Math.min(...x)} = ${Math.max(...x)-Math.min(...x)}.`,'Rango = valor máximo − valor mínimo')},
+()=>{const v=R(2,9),arr=shuffle([v,v,v,R(1,9),R(1,9),R(1,9)].map((x,i)=>i>2&&x===v?x+1>9?1:x+1:x));const cnt={};arr.forEach(x=>cnt[x]=(cnt[x]||0)+1);const mo=+Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];return mk(`Moda de: ${arr.join(', ')}`,fmt(mo),[fmt(arr.reduce((a,b)=>a+b)/6),fmt(Math.max(...arr)),fmt(arr.length),fmt(cnt[mo])],`La moda es el valor más repetido: ${mo} (aparece ${cnt[mo]} veces).`,'Moda = valor con mayor frecuencia.')}],
+pro:[
+()=>{const k=R(1,4);return mk(`Al lanzar un dado, ¿probabilidad de sacar más de ${k}?`,frac(6-k,6),[frac(k,6),frac(7-k,6),frac(1,6-k),frac(6-k,k)],`Casos favorables: ${6-k} (del ${k+1} al 6). Laplace: ${6-k}/6 = ${frac(6-k,6)}.`,'Laplace: casos favorables / casos posibles.')},
+()=>{const s=R(2,12),w=6-Math.abs(s-7);return mk(`Se lanzan dos dados. ¿Probabilidad de que la suma sea ${s}?`,frac(w,36),[frac(1,11),frac(w,12),frac(w+1,36),frac(w,6),frac(1,36)],`Hay 6·6 = 36 resultados posibles y ${w} suman ${s}. P = ${w}/36 = ${frac(w,36)}.`,'Con dos dados hay 36 casos posibles.')},
+()=>{const n=R(4,12),V=n*(n-1),C=V/2;return Math.random()<.5?mk(`De ${n} militares hay que elegir un jefe de patrulla y un segundo. ¿De cuántas formas?`,fmt(V),[fmt(C),fmt(n*n),fmt(2*n),fmt(C+1)],`Importa el orden (variación): V = ${n}·${n-1} = ${V}.`,'Si importa el orden: variaciones.'):mk(`De ${n} militares hay que elegir 2 para una guardia (sin cargos). ¿De cuántas formas?`,fmt(C),[fmt(V),fmt(n*n),fmt(2*n),fmt(C+n)],`No importa el orden (combinación): C = ${n}·${n-1}/2 = ${C}.`,'Si no importa el orden: combinaciones, C(n,2) = n·(n−1)/2.')},
+()=>{const a=R(2,6)/10,b=R(2,6)/10,i=Math.round(R(1,Math.min(a,b)*10-1))/10,u=a+b-i;return mk(`P(A) = ${fmt(a)}, P(B) = ${fmt(b)} y P(A ∩ B) = ${fmt(i)}. ¿P(A ∪ B)?`,fmt(u),[fmt(a+b),fmt(a*b),fmt(u-i),fmt(1-u)],`P(A ∪ B) = P(A) + P(B) − P(A ∩ B) = ${fmt(a)} + ${fmt(b)} − ${fmt(i)} = ${fmt(u)}.`,'P(A ∪ B) = P(A) + P(B) − P(A ∩ B)')},
+()=>{const b=pick([.2,.4,.5,.8]),i=b*pick([.25,.5,.75]);return mk(`P(A ∩ B) = ${fmt(i)} y P(B) = ${fmt(b)}. ¿P(A | B)?`,fmt(i/b),[fmt(i*b),fmt(b/i),fmt(i),fmt(1-i/b)],`P(A | B) = P(A ∩ B)/P(B) = ${fmt(i)}/${fmt(b)} = ${fmt(i/b)}.`,'Probabilidad condicionada: P(A | B) = P(A ∩ B) / P(B)')}],
+
+cie:[
+()=>{const v=18*R(1,8);return mk(`Pasa ${v} km/h a m/s`,U(v/3.6,'m/s'),[U(v*3.6,'m/s'),U(v/60,'m/s'),U(v/36,'m/s'),U(v/1.8,'m/s')],`Divide entre 3,6: ${v} / 3,6 = ${fmt(v/3.6)} m/s (1 km/h = 1000 m / 3600 s).`,'km/h → m/s: divide entre 3,6')},
+()=>{const L=[['giga (G)','10⁹'],['mega (M)','10⁶'],['kilo (k)','10³'],['centi (c)','10⁻²'],['mili (m)','10⁻³'],['micro (µ)','10⁻⁶'],['nano (n)','10⁻⁹'],['pico (p)','10⁻¹²']],x=pick(L);return mk(`El prefijo ${x[0]} equivale a…`,x[1],shuffle(L.map(y=>y[1])),`${x[0]} = ${x[1]}.`,'k = 10³, M = 10⁶, G = 10⁹ · m = 10⁻³, µ = 10⁻⁶, n = 10⁻⁹, p = 10⁻¹²')},
+()=>{const m=pick([1.5,2.4,3.2,4.5,6.7,7.2,8.1]),e=pick([-7,-6,-5,-4,-3,4,5,6,7,8]),v=m*10**e,txt=e<0?v.toFixed(-e+1).replace('.',','):String(Math.round(v));return mk(`Expresa ${txt} en notación científica`,sci(v),[sci(v*10),sci(v/10),`${fmt(m)}·10${sp(-e)}`,sci(v*100)],`Coloca la coma tras la primera cifra no nula (${fmt(m)}) y cuenta los lugares que se mueve: ${Math.abs(e)} hacia la ${e<0?'derecha → exponente negativo':'izquierda → exponente positivo'}. Resultado: ${sci(v)}.`,'a·10ⁿ con 1 ≤ a < 10.')},
+()=>{const V=pick([50,100,200,250,400,500]),ea=pick([1,2,4,5,10]),Mv=V+ea*pick([1,-1]),er=ea/V*100;return mk(`El valor real de una longitud es ${V} cm y se mide ${Mv} cm. ¿Error relativo?`,`${fmt(er)} %`,[`${fmt(ea)} %`,`${fmt(er*10)} %`,`${fmt(ea)} cm`,`${fmt(er/10)} %`],`Error absoluto = |${Mv} − ${V}| = ${ea} cm. Error relativo = ${ea}/${V} = ${fmt(ea/V)} → ${fmt(er)} %.`,'Er = Ea / valor real (× 100 para %)')},
+()=>{const c=pick([['0,00450',3],['12,050',5],['300,0',4],['0,0702',3],['5,08',3],['1,200',4],['0,5',1],['20,04',4]]);return mk(`¿Cuántas cifras significativas tiene ${c[0]}?`,String(c[1]),[String(c[1]+1),String(c[1]-1||c[1]+2),String(c[0].replace(/[^0-9]/g,'').length)],`Los ceros a la izquierda no cuentan; los ceros entre cifras o al final tras la coma sí. ${c[0]} → ${c[1]}.`,'Ceros a la izquierda: no cuentan. Ceros finales tras la coma: sí cuentan.')}],
+mec:[
+()=>{const v0=R(0,20),a=R(1,5),t=R(2,10),v=v0+a*t;return mk(`Un vehículo va a ${v0} m/s y acelera a ${a} m/s² durante ${t} s. ¿Velocidad final?`,U(v,'m/s'),[U(a*t,'m/s'),U(v0+a,'m/s'),U(v0+a*t*t/2,'m/s'),U(v+5,'m/s')],`v = v₀ + a·t = ${v0} + ${a}·${t} = ${v} m/s.`,'MRUA: v = v₀ + a·t')},
+()=>{const v0=R(0,10),a=2*R(1,3),t=R(2,8),d=v0*t+a*t*t/2;return mk(`Un móvil parte con ${v0} m/s y acelera a ${a} m/s². ¿Qué distancia recorre en ${t} s?`,U(d,'m'),[U(v0*t+a*t*t,'m'),U(v0*t,'m'),U((v0+a*t)*t,'m'),U(v0+a*t,'m'),U(d+t,'m')],`x = v₀·t + ½·a·t² = ${v0}·${t} + ½·${a}·${t*t} = ${v0*t} + ${a*t*t/2} = ${d} m.`,'MRUA: x = v₀·t + ½·a·t²')},
+()=>{const v=pick([60,80,90,100,120]),t=pick([.5,1,1.5,2,2.5,3]),d=v*t;return mk(`Un convoy circula a ${v} km/h constantes. ¿Cuánto tarda en recorrer ${fmt(d)} km?`,hm(t),[t%1?`${Math.floor(t)} h ${Math.round(t%1*100)} min`:hm(t*1.5),hm(t+.5),hm(t*2),hm(v/d)],`MRU: t = d/v = ${fmt(d)}/${v} = ${fmt(t)} h = ${hm(t)}. (0,5 h son 30 min, no 50.)`,'MRU: t = d / v')},
+()=>{const v0=pick([10,20,30]),a=pick([2,4,5]),d=v0*v0/(2*a);return mk(`Un camión a ${v0} m/s frena con deceleración constante de ${a} m/s². ¿Distancia de frenado?`,U(d,'m'),[U(v0*v0/a,'m'),U(v0/a,'m'),U(v0*a,'m'),U(d/2,'m')],`v² = v₀² − 2·a·d → 0 = ${v0*v0} − 2·${a}·d → d = ${v0*v0}/${2*a} = ${fmt(d)} m.`,'Sin tiempo: v² = v₀² + 2·a·Δx')},
+()=>{const t=R(1,6);return mk(`Un objeto cae libremente desde el reposo. ¿Qué velocidad tiene a los ${t} s? (g = 9,8 m/s²)`,U(9.8*t,'m/s'),[U(9.8,'m/s'),U(4.9*t*t,'m/s'),U(9.8*t*t,'m/s'),U(10*t,'m/s')],`v = g·t = 9,8·${t} = ${fmt(9.8*t)} m/s.`,'Caída libre: v = g·t')},
+()=>{const t=R(1,6),h=5*t*t;return mk(`Se deja caer una piedra y tarda ${t} s en llegar al suelo. ¿Desde qué altura cayó?${G10}`,U(h,'m'),[U(10*t*t,'m'),U(10*t,'m'),U(5*t,'m'),U(h+5,'m')],`h = ½·g·t² = ½·10·${t*t} = ${h} m.`,'Caída libre: h = ½·g·t²')},
+()=>{const v0=10*R(1,5),H=v0*v0/20,t=v0/10;return Math.random()<.4?mk(`Se lanza un objeto hacia arriba a ${v0} m/s. ¿Cuánto tarda en llegar al punto más alto?${G10}`,U(t,'s'),[U(2*t,'s'),U(v0,'s'),U(H,'s'),U(t+1,'s')],`Arriba del todo v = 0: t = v₀/g = ${v0}/10 = ${fmt(t)} s.`,'En el punto más alto la velocidad es 0: v = v₀ − g·t'):mk(`Se lanza un objeto hacia arriba a ${v0} m/s. ¿Altura máxima?${G10}`,U(H,'m'),[U(v0*v0/10,'m'),U(v0/10,'m'),U(v0*10,'m'),U(H/2,'m')],`h máx = v₀²/(2g) = ${v0*v0}/20 = ${fmt(H)} m.`,'h máx = v₀² / (2·g)')},
+()=>{const t=R(1,4),h=5*t*t,vx=pick([5,10,15,20]),x=vx*t;return mk(`Desde ${h} m de altura se lanza un objeto horizontalmente a ${vx} m/s. ¿A qué distancia horizontal cae?${G10}`,U(x,'m'),[U(vx*h/10,'m'),U(vx*t*t,'m'),U(h,'m'),U(x*2,'m')],`Tiempo de caída: t = √(2h/g) = √(${2*h}/10) = ${t} s. Alcance: x = vₓ·t = ${vx}·${t} = ${x} m.`,'Tiro horizontal: cae en el mismo tiempo que en caída libre; x = vₓ·t')},
+()=>{const t=pick(T3.slice(0,4)),v=sgn(t.slice(0,3));return mk(`Módulo de la fuerza F = ${vec(v)} N`,U(t[3],'N'),[U(t[0]+t[1]+t[2],'N'),U(t[3]**2,'N'),U(t[3]+1,'N')],`|F| = √(${v.map(x=>P(x)+'²').join(' + ')}) = √${t[3]**2} = ${t[3]} N.`,'|v| = √(x² + y² + z²)')}],
+dyn:[
+()=>{const m=R(2,20),a=R(1,6),F=m*a;return Math.random()<.5?mk(`¿Qué fuerza neta hay que aplicar a ${m} kg para que acelere a ${a} m/s²?`,U(F,'N'),[U(m/a,'N'),U(m+a,'N'),U(F*10,'N'),U(F/2,'N')],`F = m·a = ${m}·${a} = ${F} N.`,'2ª ley de Newton: F = m·a'):mk(`Una fuerza neta de ${F} N actúa sobre ${m} kg. ¿Aceleración?`,U(a,'m/s²'),[U(F*m,'m/s²'),U(Math.round(m/F*100)/100,'m/s²'),U(F-m,'m/s²'),U(a+1,'m/s²')],`a = F/m = ${F}/${m} = ${a} m/s².`,'a = F / m')},
+()=>{const m=R(5,90);return mk(`¿Cuál es el peso de una masa de ${m} kg? (g = 9,8 m/s²)`,U(m*9.8,'N'),[U(m,'N'),U(Math.round(m/9.8*100)/100,'N'),U(m*10,'N'),U(m*98,'N')],`P = m·g = ${m}·9,8 = ${fmt(m*9.8)} N. La masa (kg) y el peso (N) no son lo mismo.`,'P = m·g')},
+()=>{const m=pick([2,4,5,10,20]),mu=pick([.1,.2,.25,.5]),a=R(1,5),fr=mu*m*10,F=m*a+fr;return mk(`Se empuja una caja de ${m} kg sobre el suelo con ${fmt(F)} N. Coeficiente de rozamiento μ = ${fmt(mu)}. ¿Aceleración?${G10}`,U(a,'m/s²'),[U(F/m,'m/s²'),U((F+fr)/m,'m/s²'),U(mu*10,'m/s²'),U(a+2,'m/s²')],`Rozamiento: Fr = μ·m·g = ${fmt(mu)}·${m}·10 = ${fmt(fr)} N. Fuerza neta = ${fmt(F)} − ${fmt(fr)} = ${fmt(m*a)} N. a = ${fmt(m*a)}/${m} = ${a} m/s².`,'F neta = F − μ·m·g; después a = F neta / m')},
+()=>{const m=2*R(1,10);return mk(`Un cuerpo de ${m} kg está en un plano inclinado 30° sin rozamiento. ¿Qué componente del peso tira de él plano abajo?${G10}`,U(5*m,'N'),[U(10*m,'N'),U(Math.round(10*m*.866*10)/10,'N'),U(m/2,'N'),U(5,'N')],`P∥ = m·g·sen 30° = ${m}·10·½ = ${5*m} N (la aceleración sería g·sen 30° = 5 m/s²).`,'Plano inclinado: P∥ = m·g·sen α;  P⊥ = m·g·cos α')},
+()=>{const m=2*R(1,10),v=R(2,12),E=m*v*v/2;return mk(`Energía cinética de ${m} kg que van a ${v} m/s`,U(E,'J'),[U(m*v*v,'J'),U(m*v/2,'J'),U(m*v,'J'),U(E/2,'J')],`Ec = ½·m·v² = ½·${m}·${v*v} = ${fmt(E)} J.`,'Ec = ½·m·v²')},
+()=>{const m=R(1,50),h=R(2,30),E=m*9.8*h;return mk(`Energía potencial de ${m} kg a ${h} m de altura (g = 9,8 m/s²)`,U(E,'J'),[U(m*h,'J'),U(E/2,'J'),U(m*9.8,'J'),U(E*10,'J')],`Ep = m·g·h = ${m}·9,8·${h} = ${fmt(E)} J.`,'Ep = m·g·h')},
+()=>{const F=R(2,20)*5,d=R(2,20),th=pick([0,60,90,180]),c={0:1,60:.5,90:0,180:-1}[th],W=F*d*c;return mk(`Una fuerza de ${F} N desplaza un cuerpo ${d} m formando ${th}° con el desplazamiento. ¿Trabajo realizado?`,U(W,'J'),[U(F*d,'J'),U(F*d/2,'J'),U(0,'J'),U(-F*d,'J'),U(F+d,'J')],`W = F·d·cos θ = ${F}·${d}·cos ${th}° = ${F}·${d}·${P(c)} = ${fmt(W)} J.${th===90?' Una fuerza perpendicular al movimiento no realiza trabajo.':''}`,'W = F·d·cos θ')},
+()=>{const v=10*R(1,6),h=v*v/20;return mk(`Se suelta un objeto desde ${fmt(h)} m. Por conservación de la energía, ¿con qué velocidad llega al suelo?${G10}`,U(v,'m/s'),[U(20*h,'m/s'),U(h/10,'m/s'),U(Math.round(Math.sqrt(10*h)*10)/10,'m/s'),U(v/2,'m/s')],`m·g·h = ½·m·v² → v = √(2·g·h) = √(2·10·${fmt(h)}) = √${fmt(20*h)} = ${v} m/s (no depende de la masa).`,'Ep arriba = Ec abajo → v = √(2gh)')},
+()=>{const m=R(2,20)*5,h=R(2,10),t=pick([2,4,5,10]),W=m*10*h,Pw=W/t;return mk(`Una grúa sube ${m} kg a ${h} m de altura en ${t} s. ¿Potencia media?${G10}`,U(Pw,'W'),[U(W,'W'),U(W*t,'W'),U(m*h/t,'W'),U(Pw*2,'W')],`W = m·g·h = ${m}·10·${h} = ${fmt(W)} J. P = W/t = ${fmt(W)}/${t} = ${fmt(Pw)} W.`,'P = W / t')},
+()=>{let m1,m2,vf,v1;do{m1=R(1,10);m2=R(1,10);vf=R(1,6);v1=vf*(m1+m2)/m1}while(v1%1);return mk(`Un carro de ${m1} kg a ${v1} m/s choca con otro de ${m2} kg parado y quedan unidos. ¿Velocidad tras el choque?`,U(vf,'m/s'),[U(v1,'m/s'),U(v1/2,'m/s'),U(Math.round(m1*v1/m2*100)/100,'m/s'),U(vf+1,'m/s')],`Se conserva p: ${m1}·${v1} = (${m1} + ${m2})·v → v = ${m1*v1}/${m1+m2} = ${fmt(vf)} m/s.`,'Choque inelástico: m₁v₁ + m₂v₂ = (m₁ + m₂)·v')},
+()=>{const r=pick([1,2,4,5]),v=r*R(1,5),ac=v*v/r;return mk(`Un móvil toma una curva de radio ${r} m a ${v} m/s. ¿Aceleración centrípeta?`,U(ac,'m/s²'),[U(v/r,'m/s²'),U(v*v,'m/s²'),U(v*r,'m/s²'),U(ac*2,'m/s²'),U(ac/2,'m/s²')],`a_c = v²/r = ${v*v}/${r} = ${fmt(ac)} m/s².`,'a_c = v² / r')},
+()=>{const rpm=pick([30,60,90,120,300]),k=rpm/30;return mk(`Un motor gira a ${rpm} rpm. ¿Velocidad angular en rad/s?`,`${k===1?'':fmt(k)}π rad/s`,[`${fmt(rpm*2)}π rad/s`,`${fmt(rpm/60)} rad/s`,`${fmt(k*2)}π rad/s`,`${fmt(rpm)} rad/s`],`${rpm} vueltas/min · 2π rad/vuelta ÷ 60 s/min = ${k===1?'':fmt(k)}π rad/s.`,'1 vuelta = 2π rad; 1 min = 60 s')}],
+gra:[
+()=>{const k=R(1,3),g=9.8/(k+1)**2;return mk(`En la superficie terrestre g = 9,8 N/kg. ¿Cuánto vale g a una altura igual a ${k===1?'un radio terrestre':k+' radios terrestres'} sobre la superficie?`,U(Math.round(g*100)/100,'N/kg'),[U(Math.round(9.8/(k+1)*100)/100,'N/kg'),U(Math.round(9.8/k/k*100)/100,'N/kg'),U(9.8,'N/kg'),U(Math.round(9.8/(k+1)**3*1000)/1000,'N/kg')],`La distancia al centro es r = ${k+1}R. Como g ∝ 1/r²: g = 9,8/${(k+1)**2} ≈ ${fmt(Math.round(g*100)/100)} N/kg.`,'g = G·M/r², con r medido desde el centro del planeta.')},
+()=>{const[a,b]=pick([[2,2],[4,2],[8,2],[1,2],[9,3],[2,1],[3,3]]),g=9.8*a/(b*b);return mk(`Un planeta tiene ${a===1?'la misma masa':a+' veces la masa'} de la Tierra y ${b===1?'el mismo radio':b+' veces su radio'}. ¿Gravedad en su superficie? (g Tierra = 9,8 m/s²)`,U(Math.round(g*100)/100,'m/s²'),[U(Math.round(9.8*a/b*100)/100,'m/s²'),U(Math.round(9.8*b*b/a*100)/100,'m/s²'),U(9.8*a,'m/s²'),U(Math.round(9.8/(a*b)*100)/100,'m/s²')],`g = G·M/R² → g′ = 9,8·${a}/${b}² = ${fmt(Math.round(g*100)/100)} m/s².`,'g ∝ M / R²')},
+()=>{const m1=pick([100,1000,5000]),m2=pick([10,100,1000]),r=pick([1,2,10]),F=6.67e-11*m1*m2/(r*r);return mk(`Fuerza gravitatoria entre ${fmt(m1)} kg y ${fmt(m2)} kg separados ${r} m (G = 6,67·10⁻¹¹ N·m²/kg²)`,S_(F,'N'),[S_(F*r,'N'),S_(F*10,'N'),S_(F/10,'N'),S_(F*1e11,'N')],`F = G·m₁·m₂/r² = 6,67·10⁻¹¹·${fmt(m1)}·${fmt(m2)}/${r*r} = ${sci(F)} N. Es muy pequeña: la gravedad solo se nota con masas enormes.`,'F = G·m₁·m₂ / r²')},
+()=>{const k=pick([2,3,4]);return mk(`Según la 3ª ley de Kepler, si el radio de la órbita de un satélite se multiplica por ${k*k}, su periodo…`,`se multiplica por ${k**3}`,[`se multiplica por ${k*k}`,`se multiplica por ${k}`,`se multiplica por ${k**4}`,'no cambia'],`T² ∝ r³ → T ∝ r^(3/2) = (${k*k})^(3/2) = ${k}³ = ${k**3}.`,'3ª ley de Kepler: T² / r³ = constante')},
+()=>{const k=pick([4,9,16]);return mk(`Si el radio de la órbita circular de un satélite se multiplica por ${k}, su velocidad orbital…`,`se divide entre ${Math.sqrt(k)}`,[`se divide entre ${k}`,`se multiplica por ${Math.sqrt(k)}`,`se divide entre ${k*k}`,'no cambia'],`v = √(G·M/r) → si r se multiplica por ${k}, v se divide entre √${k} = ${Math.sqrt(k)}.`,'Velocidad orbital: v = √(G·M / r)')}],
+elc:[
+()=>{const q1=R(1,9),q2=R(1,9),r=pick([.1,.3,1,3]),F=9e9*q1*q2*1e-12/(r*r);return mk(`Fuerza entre dos cargas de ${q1} µC y ${q2} µC separadas ${fmt(r)} m en el vacío (k = 9·10⁹ N·m²/C²)`,S_(F,'N'),[S_(F*r,'N'),S_(F*10,'N'),S_(F/10,'N'),S_(F*1e12,'N')],`F = k·q₁·q₂/r² = 9·10⁹·${q1}·10⁻⁶·${q2}·10⁻⁶/${fmt(r*r)} = ${sci(F)} N.`,'Ley de Coulomb: F = k·q₁·q₂ / r²  (1 µC = 10⁻⁶ C)')},
+()=>{const q=R(1,9),r=pick([.1,.3,1,3]),E=9e9*q*1e-6/(r*r);return mk(`Intensidad del campo eléctrico a ${fmt(r)} m de una carga de ${q} µC (k = 9·10⁹ N·m²/C²)`,S_(E,'N/C'),[S_(E*r,'N/C'),S_(E*10,'N/C'),S_(E/10,'N/C'),S_(E*r*r,'N/C')],`E = k·q/r² = 9·10⁹·${q}·10⁻⁶/${fmt(r*r)} = ${sci(E)} N/C.`,'E = k·q / r²')},
+()=>{const q=R(1,9),r=pick([.1,.3,1,3]),V=9e9*q*1e-6/r;return mk(`Potencial eléctrico a ${fmt(r)} m de una carga de ${q} µC (k = 9·10⁹ N·m²/C²)`,S_(V,'V'),[S_(V/r,'V'),S_(V*10,'V'),S_(V/10,'V'),S_(-V,'V')],`V = k·q/r = 9·10⁹·${q}·10⁻⁶/${fmt(r)} = ${sci(V)} V. (El potencial va con 1/r, no 1/r².)`,'V = k·q / r  (escalar)')},
+()=>{const q=R(1,9),dV=pick([50,100,200,500,1000]),W=q*1e-6*dV;return mk(`Trabajo para llevar una carga de ${q} µC entre dos puntos con diferencia de potencial de ${dV} V`,S_(W,'J'),[S_(W*10,'J'),S_(W/10,'J'),S_(q*dV,'J'),S_(W*1e3,'J')],`W = q·ΔV = ${q}·10⁻⁶·${dV} = ${sci(W)} J.`,'W = q·ΔV')},
+()=>{const k=pick([2,3,4]),w=pick(['E','V','F']);const ans=w==='V'?`se divide entre ${k}`:`se divide entre ${k*k}`;return mk(`Si la distancia a una carga puntual se multiplica por ${k}, ${w==='E'?'la intensidad del campo eléctrico':w==='V'?'el potencial eléctrico':'la fuerza sobre otra carga'}…`,ans,[`se divide entre ${k}`,`se divide entre ${k*k}`,`se multiplica por ${k}`,'no cambia'],w==='V'?`V = k·q/r: depende de 1/r → se divide entre ${k}.`:`Depende de 1/r² → se divide entre ${k}² = ${k*k}.`,'E y F ∝ 1/r² · V ∝ 1/r')},
+()=>{const dV=pick([100,500,1000,2000]);return mk(`Un electrón se acelera desde el reposo con una diferencia de potencial de ${dV} V. ¿Qué energía cinética adquiere? (e = 1,6·10⁻¹⁹ C)`,S_(1.6e-19*dV,'J'),[S_(1.6e-19,'J'),S_(1.6e-19*dV*10,'J'),S_(dV/1.6e-19,'J'),S_(1.6e-19*dV/2,'J')],`Ec = q·ΔV = 1,6·10⁻¹⁹·${dV} = ${sci(1.6e-19*dV)} J (= ${dV} eV).`,'Ec = q·ΔV;  1 eV = 1,6·10⁻¹⁹ J')}],
+mag:[
+()=>{const v=R(1,9),B=pick([.1,.2,.5,1,2]),F=1.6e-19*v*1e6*B;return mk(`Un protón entra a ${v}·10⁶ m/s perpendicular a un campo magnético de ${fmt(B)} T. ¿Fuerza que sufre? (q = 1,6·10⁻¹⁹ C)`,S_(F,'N'),[S_(F*10,'N'),S_(F/10,'N'),S_(1.6e-19*B,'N'),S_(F/B/B,'N')],`F = q·v·B·sen 90° = 1,6·10⁻¹⁹·${v}·10⁶·${fmt(B)} = ${sci(F)} N.`,'Fuerza de Lorentz: F = q·v·B·sen θ')},
+()=>{const w=pick(['B','v','m']),k=pick([2,3]);const ans=w==='B'?`se divide entre ${k}`:`se multiplica por ${k}`;return mk(`Una partícula cargada describe una circunferencia en un campo magnético. Si ${w==='B'?'el campo B':w==='v'?'su velocidad':'su masa'} se multiplica por ${k}, el radio…`,ans,[`se divide entre ${k}`,`se multiplica por ${k}`,`se multiplica por ${k*k}`,'no cambia'],`r = m·v/(q·B): ${w==='B'?'B está en el denominador':'está en el numerador'} → ${ans}.`,'Radio de la órbita: r = m·v / (q·B)')},
+()=>{const I=pick([2,5,10,20]),r=pick([.01,.02,.05,.1]),B=2e-7*I/r;return mk(`Campo magnético a ${fmt(r*100)} cm de un hilo recto e indefinido por el que circulan ${I} A (μ₀ = 4π·10⁻⁷ T·m/A)`,S_(B,'T'),[S_(B*10,'T'),S_(B/10,'T'),S_(B*Math.PI*2,'T'),S_(B*r,'T')],`B = μ₀·I/(2π·r) = 4π·10⁻⁷·${I}/(2π·${fmt(r)}) = 2·10⁻⁷·${I}/${fmt(r)} = ${sci(B)} T.`,'Hilo recto: B = μ₀·I / (2π·r)')},
+()=>{const B=pick([.1,.2,.5,1]),I=pick([2,4,5,10]),L=pick([.1,.2,.5,1,2]),th=pick([90,30]),F=B*I*L*(th===90?1:.5);return mk(`Un conductor de ${fmt(L)} m por el que pasan ${I} A forma ${th}° con un campo de ${fmt(B)} T. ¿Fuerza sobre él?`,U(F,'N'),[U(B*I*L*(th===90?.5:1),'N'),U(B*I,'N'),U(B*L/I,'N'),U(F*2,'N')],`F = I·L·B·sen θ = ${I}·${fmt(L)}·${fmt(B)}·sen ${th}° = ${fmt(F)} N.`,'F = I·L·B·sen θ')}],
+ind:[
+()=>{const B=pick([.2,.5,1,2]),S=pick([50,100,200,400]),th=pick([0,60,90]),c={0:1,60:.5,90:0}[th],F=B*S*1e-4*c;return mk(`Una espira de ${S} cm² está en un campo de ${fmt(B)} T; su normal forma ${th}° con B. ¿Flujo magnético?`,U(F,'Wb'),[U(B*S*c,'Wb'),U(B*S*1e-4,'Wb'),U(F*100,'Wb'),U(0,'Wb'),U(F/2,'Wb')],`Φ = B·S·cos θ = ${fmt(B)}·${S}·10⁻⁴·cos ${th}° = ${fmt(F)} Wb.${th===90?' Con la normal perpendicular a B no hay flujo.':''}`,'Φ = B·S·cos θ  (1 cm² = 10⁻⁴ m²)')},
+()=>{const N=pick([10,50,100,200]),B=pick([.2,.5,1]),S=pick([.01,.02,.05]),t=pick([.1,.2,.5]),e=N*B*S/t;return mk(`Una bobina de ${N} espiras de ${fmt(S)} m² está en un campo de ${fmt(B)} T que se anula en ${fmt(t)} s. ¿Fem inducida media?`,U(e,'V'),[U(B*S/t,'V'),U(N*B*S,'V'),U(e*t*t,'V'),U(e*10,'V')],`ε = N·ΔΦ/Δt = ${N}·${fmt(B)}·${fmt(S)}/${fmt(t)} = ${fmt(e)} V.`,'Ley de Faraday: ε = −N·ΔΦ/Δt')},
+()=>{const V1=pick([230,120,400]),N1=pick([500,1000,2000]),N2=pick([50,100,200,250,4000]),V2=V1*N2/N1;return mk(`Un transformador tiene ${N1} espiras en el primario y ${N2} en el secundario. Si el primario recibe ${V1} V, ¿tensión en el secundario?`,U(V2,'V'),[U(V1*N1/N2,'V'),U(V1,'V'),U(V2*2,'V'),U(V1+N2,'V')],`V₂/V₁ = N₂/N₁ → V₂ = ${V1}·${N2}/${N1} = ${fmt(V2)} V. ${N2>N1?'Es elevador.':'Es reductor.'}`,'V₂ / V₁ = N₂ / N₁')}],
+mas:[
+()=>{const k=pick([2,4,6,8,10]),A=pick([.02,.05,.1,.2]),w=pick(['A','f','T']),f=k/2;return mk(`Un oscilador sigue x(t) = ${fmt(A)}·sen(${k}πt) (SI). ¿${w==='A'?'Amplitud':w==='f'?'Frecuencia':'Periodo'}?`,w==='A'?U(A,'m'):w==='f'?U(f,'Hz'):U(1/f,'s'),w==='A'?[U(A*2,'m'),U(k,'m'),U(A/2,'m')]:w==='f'?[U(k,'Hz'),U(1/f,'Hz'),U(k*Math.PI,'Hz'),U(2*k,'Hz')]:[U(f,'s'),U(1/k,'s'),U(k,'s'),U(2/f,'s')],`x = A·sen(ωt): A = ${fmt(A)} m, ω = ${k}π rad/s → f = ω/2π = ${fmt(f)} Hz y T = 1/f = ${fmt(1/f)} s.`,'ω = 2π·f = 2π / T')},
+()=>{const A=pick([.05,.1,.2]),w=pick([2,4,5,10]),t=Math.random()<.5;return t?mk(`MAS de amplitud ${fmt(A)} m y ω = ${w} rad/s. ¿Velocidad máxima?`,U(A*w,'m/s'),[U(A*w*w,'m/s'),U(A/w,'m/s'),U(w,'m/s'),U(A*w*2,'m/s')],`v máx = A·ω = ${fmt(A)}·${w} = ${fmt(A*w)} m/s (en el centro).`,'v máx = A·ω · a máx = A·ω²'):mk(`MAS de amplitud ${fmt(A)} m y ω = ${w} rad/s. ¿Aceleración máxima?`,U(A*w*w,'m/s²'),[U(A*w,'m/s²'),U(A/w/w,'m/s²'),U(w*w,'m/s²'),U(A*w*w*2,'m/s²')],`a máx = A·ω² = ${fmt(A)}·${w*w} = ${fmt(A*w*w)} m/s² (en los extremos).`,'v máx = A·ω · a máx = A·ω²')},
+()=>{const w=pick(['m','k','L']),k=pick([4,9]);const r=Math.sqrt(k);return mk(w==='L'?`Si la longitud de un péndulo simple se multiplica por ${k}, su periodo…`:`En un muelle, si ${w==='m'?'la masa colgada':'la constante elástica'} se multiplica por ${k}, el periodo…`,w==='k'?`se divide entre ${r}`:`se multiplica por ${r}`,[`se multiplica por ${k}`,`se divide entre ${r}`,`se multiplica por ${r}`,'no cambia'],w==='L'?`T = 2π√(L/g) → T ∝ √L → ×√${k} = ×${r}.`:w==='m'?`T = 2π√(m/k) → T ∝ √m → ×${r}.`:`T = 2π√(m/k) → T ∝ 1/√k → ÷${r}.`,'Muelle: T = 2π√(m/k) · Péndulo: T = 2π√(L/g)')},
+()=>{const k=pick([50,100,200,400]),x=pick([2,5,10,20]),F=k*x/100;return mk(`Un muelle de k = ${k} N/m se estira ${x} cm. ¿Fuerza recuperadora (en módulo)?`,U(F,'N'),[U(k*x,'N'),U(k/x,'N'),U(F/2,'N'),U(F*10,'N')],`F = k·x = ${k}·${fmt(x/100)} = ${fmt(F)} N (pasa los cm a m).`,'Ley de Hooke: F = −k·x')},
+()=>{const A=pick([.1,.2,.5]),k=pick([100,200,400]),E=.5*k*A*A;return mk(`Energía mecánica de un oscilador de k = ${k} N/m y amplitud ${fmt(A)} m`,U(E,'J'),[U(k*A*A,'J'),U(.5*k*A,'J'),U(k*A,'J'),U(E/2,'J')],`E = ½·k·A² = ½·${k}·${fmt(A*A)} = ${fmt(E)} J (constante en todo el movimiento).`,'E = ½·k·A²')}],
+ond:[
+()=>{const f=pick([85,170,340,680,1700]);return mk(`El sonido viaja a 340 m/s. ¿Longitud de onda de un sonido de ${f} Hz?`,U(340/f,'m'),[U(340*f,'m'),U(Math.round(f/340*100)/100,'m'),U(680/f,'m'),U(Math.round(1/f*1e4)/1e4,'m')],`λ = v/f = 340/${f} = ${fmt(340/f)} m.`,'v = λ·f')},
+()=>{const f=pick([2,4,5,10,20,25,50]);return mk(`Una onda tiene una frecuencia de ${f} Hz. ¿Periodo?`,U(1/f,'s'),[U(f,'s'),U(2/f,'s'),U(f/10,'s'),U(1/(2*f),'s')],`T = 1/f = 1/${f} = ${fmt(1/f)} s.`,'T = 1 / f')},
+()=>{const a=pick([2,4,10,20,40]),b=pick([1,2,4,5]),w=pick(['v','l','f']);const v=a/b,l=2/b,f=a/2;return mk(`Una onda viene dada por y = 0,02·sen(${a}πt − ${b===1?'':b}πx) (SI). ¿${w==='v'?'Velocidad de propagación':w==='l'?'Longitud de onda':'Frecuencia'}?`,w==='v'?U(v,'m/s'):w==='l'?U(l,'m'):U(f,'Hz'),w==='v'?[U(b/a,'m/s'),U(a*b,'m/s'),U(a,'m/s'),U(v*2,'m/s')]:w==='l'?[U(b,'m'),U(1/b,'m'),U(2*b,'m'),U(l*2,'m')]:[U(a,'Hz'),U(a*2,'Hz'),U(f/2,'Hz'),U(b,'Hz')],`y = A·sen(ωt − kx): ω = ${a}π rad/s, k = ${b}π rad/m. f = ω/2π = ${fmt(f)} Hz; λ = 2π/k = ${fmt(l)} m; v = ω/k = ${fmt(v)} m/s.`,'ω = 2πf · k = 2π/λ · v = ω/k')},
+()=>{const n=R(-10,-2),b=10*(n+12);return mk(`Un sonido tiene una intensidad de 10${sp(n)} W/m². ¿Nivel de intensidad sonora? (I₀ = 10⁻¹² W/m²)`,`${b} dB`,[`${-n} dB`,`${b/10} dB`,`${b+10} dB`,`${10*n} dB`],`β = 10·log(I/I₀) = 10·log(10${sp(n)}/10⁻¹²) = 10·log 10${sp(n+12)} = 10·${n+12} = ${b} dB.`,'β = 10·log(I / I₀)')}],
+feo:[
+()=>{const L=pick([.5,1,1.2,2]),n=R(1,4),l=2*L/n;return mk(`Una cuerda de ${fmt(L)} m fija por los dos extremos vibra en su ${n===1?'modo fundamental':n+'º armónico'}. ¿Longitud de onda?`,U(l,'m'),[U(L/n,'m'),U(L*n,'m'),U(2*L*n,'m'),U(4*L/n,'m')],`Ondas estacionarias en cuerda fija: λ = 2L/n = 2·${fmt(L)}/${n} = ${fmt(l)} m.`,'Cuerda fija en ambos extremos: λₙ = 2L/n')},
+()=>{const ap=Math.random()<.5,vs=ap?pick([68,170]):pick([85,340]),f=pick([200,400,600,800]),fo=ap?f*340/(340-vs):f*340/(340+vs);return mk(`Una sirena de ${f} Hz se ${ap?'acerca':'aleja'} a ${vs} m/s de un observador quieto. ¿Frecuencia que percibe? (v sonido = 340 m/s)`,U(fo,'Hz'),[U(f,'Hz'),U(ap?f*340/(340+vs):f*340/(340-vs),'Hz'),U(f+vs,'Hz'),U(ap?f-vs:f+vs,'Hz')],`Efecto Doppler (foco en movimiento): f′ = f·v/(v ${ap?'−':'+'} v_f) = ${f}·340/${ap?340-vs:340+vs} = ${fmt(fo)} Hz. ${ap?'Al acercarse se oye más agudo.':'Al alejarse se oye más grave.'}`,'f′ = f·v/(v ∓ v_foco): signo − si se acerca, + si se aleja.')}],
+luz:[
+()=>{const n=pick([1.25,1.5,2,2.4,1.2]),v=3e8/n;return mk(`¿A qué velocidad viaja la luz en un medio de índice de refracción n = ${fmt(n)}? (c = 3·10⁸ m/s)`,S_(v,'m/s'),[S_(3e8*n,'m/s'),S_(3e8,'m/s'),S_(v/10,'m/s'),S_(3e8/(n*n),'m/s')],`v = c/n = 3·10⁸/${fmt(n)} = ${sci(v)} m/s. Siempre menor que c.`,'n = c / v')},
+()=>{const c=pick([['1 (aire)',45,'√2',30],['1 (aire)',60,'√3',30],['√2',30,'1 (aire)',45],['√3',30,'1 (aire)',60],['√2',45,'1 (aire)',90]]);return mk(`La luz pasa de un medio n₁ = ${c[0]} a otro n₂ = ${c[2]} con un ángulo de incidencia de ${c[1]}°. ¿Ángulo de refracción?`,`${c[3]}°`,['30°','45°','60°','90°',`${c[1]}°`],`Snell: n₁·sen θ₁ = n₂·sen θ₂ → sen θ₂ = n₁·sen ${c[1]}°/n₂ → θ₂ = ${c[3]}°.${c[3]===90?' Es justo el ángulo límite: la luz sale rasante.':''}`,'Ley de Snell: n₁·sen θ₁ = n₂·sen θ₂')},
+()=>{const c=pick([['2',30],['√2',45],['2/√3',60]]);return mk(`Ángulo límite para la luz que pasa de un medio de índice ${c[0]} al aire`,`${c[1]}°`,['30°','45°','60°','90°','0°'],`sen L = n₂/n₁ = 1/(${c[0]}) → L = ${c[1]}°. Por encima hay reflexión total.`,'sen L = n₂ / n₁ (solo si n₁ > n₂)')},
+()=>{const l=pick([400,500,600,750]),f=3e8/(l*1e-9);return mk(`Frecuencia de una luz de ${l} nm en el vacío (c = 3·10⁸ m/s)`,S_(f,'Hz'),[S_(f*10,'Hz'),S_(f/10,'Hz'),S_(3e8*l*1e-9,'Hz'),S_(f/1000,'Hz')],`f = c/λ = 3·10⁸/(${l}·10⁻⁹) = ${sci(f)} Hz.`,'c = λ·f  (1 nm = 10⁻⁹ m)')}],
+opt:[
+()=>{const c=pick([[10,-30,15],[20,-60,30],[10,-20,20],[15,-30,30],[20,-30,60],[10,-15,30]]),[f,s,s2]=c,beta=s2/s;return Math.random()<.65?mk(`Lente convergente de f′ = ${f} cm. Un objeto está ${-s} cm delante (s = ${fmt(s)} cm). ¿Dónde se forma la imagen?`,`s′ = ${s2} cm`,[`s′ = ${fmt(-s2)} cm`,`s′ = ${f} cm`,`s′ = ${-s} cm`,`s′ = ${fmt(1/(1/f-1/s))} cm`],`1/s′ − 1/s = 1/f′ → 1/s′ = 1/${f} + 1/${P(s)} → s′ = ${s2} cm. Positiva: imagen real, detrás de la lente.`,'Lentes delgadas: 1/s′ − 1/s = 1/f′'):mk(`Lente de f′ = ${f} cm con el objeto en s = ${fmt(s)} cm: la imagen sale en s′ = ${s2} cm. ¿Aumento lateral?`,fmt(beta),[fmt(-beta),fmt(s/s2),fmt(1/beta*-1===beta?beta*2:-1/beta),fmt(beta*2)],`β = s′/s = ${s2}/${P(s)} = ${fmt(beta)}. ${beta<0?'Negativo: imagen invertida.':''} ${Math.abs(beta)>1?'Mayor que el objeto.':Math.abs(beta)<1?'Menor que el objeto.':'Del mismo tamaño.'}`,'Aumento lateral en lentes: β = y′/y = s′/s')},
+()=>{const f=pick([10,20,25,40,50,-50,-25]),Pd=100/f;return mk(`Potencia de una lente de distancia focal f′ = ${fmt(f)} cm`,`${fmt(Pd)} D`,[`${fmt(f/100)} D`,`${fmt(-Pd)} D`,`${fmt(1/f)} D`,`${fmt(f)} D`],`P = 1/f′ (en metros) = 1/${fmt(f/100)} = ${fmt(Pd)} dioptrías. ${f>0?'Positiva: convergente.':'Negativa: divergente.'}`,'P = 1/f′ con f′ en metros (dioptrías)')},
+()=>{const Rr=pick([-20,-30,-40,-60,20,40]);return mk(`Distancia focal de un espejo esférico de radio R = ${fmt(Rr)} cm`,`f = ${fmt(Rr/2)} cm`,[`f = ${fmt(Rr)} cm`,`f = ${fmt(-Rr/2)} cm`,`f = ${fmt(Rr*2)} cm`,`f = ${fmt(Rr/4)} cm`],`En espejos esféricos f = R/2 = ${fmt(Rr)}/2 = ${fmt(Rr/2)} cm. ${Rr<0?'(Cóncavo)':'(Convexo)'}`,'Espejos: f = R/2;  1/s′ + 1/s = 1/f')}],
+rel:[
+()=>{const c=pick([[.6,1.25,'5/4'],[.8,5/3,'5/3'],[.866,2,'2']]),t0=c[2]==='5/3'?3*R(1,5):4*R(1,5),t=t0*c[1];return mk(`Una nave viaja a ${fmt(c[0])}c. Para sus tripulantes pasan ${t0} años. ¿Cuánto tiempo pasa en la Tierra? (γ = ${c[2]})`,U(t,'años'),[U(t0/c[1],'años'),U(t0,'años'),U(t0*c[0],'años'),U(t0*c[1]*c[1],'años')],`Dilatación del tiempo: t = γ·t₀ = (${c[2]})·${t0} = ${fmt(t)} años.`,'t = γ·t₀ con γ = 1/√(1 − v²/c²)')},
+()=>{const c=pick([[.6,1.25,'5/4'],[.8,5/3,'5/3'],[.866,2,'2']]),L0=c[2]==='5/4'?5*R(2,20):c[2]==='5/3'?5*R(2,20):2*R(5,50),L=L0/c[1];return mk(`Una varilla mide ${L0} m en reposo. ¿Qué longitud mide un observador que la ve pasar a ${fmt(c[0])}c? (γ = ${c[2]})`,U(L,'m'),[U(L0*c[1],'m'),U(L0,'m'),U(L0*c[0],'m'),U(L/c[1],'m')],`Contracción de longitudes: L = L₀/γ = ${L0}/(${c[2]}) = ${fmt(L)} m.`,'L = L₀ / γ')},
+()=>{const m=pick([1,2,5,10]),u=pick(['g','kg']),kg=u==='g'?m/1000:m,E=kg*9e16;return mk(`Energía equivalente a ${m} ${u} de masa (c = 3·10⁸ m/s)`,S_(E,'J'),[S_(kg*3e8,'J'),S_(E*1000,'J'),S_(E/1000,'J'),S_(kg*9e8,'J')],`E = m·c² = ${fmt(kg)}·(3·10⁸)² = ${fmt(kg)}·9·10¹⁶ = ${sci(E)} J.`,'E = m·c²')}],
+cua:[
+()=>{const a=pick([2,4,5,6,8]),e=pick([14,15]),f=a*10**e,E=6.63e-34*f;return mk(`Energía de un fotón de frecuencia ${a}·10${sp(e)} Hz (h = 6,63·10⁻³⁴ J·s)`,S_(E,'J'),[S_(E*10,'J'),S_(E/10,'J'),S_(6.63e-34/f,'J'),S_(f/6.63e-34,'J')],`E = h·f = 6,63·10⁻³⁴·${a}·10${sp(e)} = ${sci(E)} J.`,'Planck: E = h·f')},
+()=>{const E=pick([3,3.5,4,4.5,5,6]),W=pick([2,2.3,2.5,3,4.5]);const ok=E>W;return mk(`Sobre un metal de trabajo de extracción ${fmt(W)} eV inciden fotones de ${fmt(E)} eV. ¿Energía cinética máxima de los electrones?`,ok?U(E-W,'eV'):'No se emiten electrones',[U(E+W,'eV'),U(E,'eV'),'No se emiten electrones',U(Math.abs(E-W)+.5,'eV'),U(W,'eV')],ok?`Efecto fotoeléctrico: Ec máx = E fotón − W₀ = ${fmt(E)} − ${fmt(W)} = ${fmt(E-W)} eV.`:`La energía del fotón (${fmt(E)} eV) no supera el trabajo de extracción (${fmt(W)} eV): no hay efecto fotoeléctrico, por mucha intensidad que tenga la luz.`,'Ec máx = h·f − W₀')},
+()=>{const w=pick(['m','v']),k=pick([2,3,4]);return mk(`Según De Broglie, si ${w==='m'?'la masa':'la velocidad'} de una partícula se multiplica por ${k}, su longitud de onda…`,`se divide entre ${k}`,[`se multiplica por ${k}`,`se divide entre ${k*k}`,'no cambia',`se multiplica por ${k*k}`],`λ = h/(m·v): ${w==='m'?'m':'v'} está en el denominador → se divide entre ${k}.`,'λ = h / p = h / (m·v)')}],
+nuc:[
+()=>{const N0=pick([80,160,200,320,400,640]),T=pick([2,5,8,10,30]),n=R(1,4),N=N0/2**n;return mk(`Una muestra tiene ${N0} g de un isótopo con periodo de semidesintegración de ${T} días. ¿Cuánto queda tras ${n*T} días?`,U(N,'g'),[U(N0/(2*n),'g'),U(N0-N0/T*n,'g'),U(N*2,'g'),U(N/2,'g')],`${n*T} días = ${n} periodos. Cada periodo se reduce a la mitad: ${N0}/2${sp(n)} = ${N0}/${2**n} = ${fmt(N)} g.`,'N = N₀·(1/2)^(t/T½)')},
+()=>{const A=pick([226,238,210,232,222]),Z=pick([88,92,84,90,86]),t=pick(['α','β⁻']);const[a2,z2]=t==='α'?[A-4,Z-2]:[A,Z+1],f=(a,z)=>`A = ${a}, Z = ${z}`;return mk(`Un núcleo con A = ${A} y Z = ${Z} emite una partícula ${t}. ¿Cómo queda el núcleo hijo?`,f(a2,z2),[f(A-4,Z-2),f(A,Z+1),f(A-2,Z-4),f(A,Z-1),f(A-4,Z+2)],t==='α'?`Una partícula α es un núcleo de helio (⁴₂He): A baja 4 y Z baja 2 → ${f(a2,z2)}.`:`En la β⁻ un neutrón se convierte en protón: A no cambia y Z sube 1 → ${f(a2,z2)}.`,'α: A − 4, Z − 2 · β⁻: A igual, Z + 1 · γ: no cambia')},
+()=>{const n=R(1,5);return mk(`¿Qué porcentaje de una muestra radiactiva queda sin desintegrar tras ${n} ${n===1?'periodo':'periodos'} de semidesintegración?`,`${fmt(100/2**n)} %`,[`${fmt(100-20*n)} %`,`${fmt(100/(2*n))} %`,`${fmt(50/2**n)} %`,`${fmt(100/2**(n-1))} %`],`Cada periodo queda la mitad: 100 %/2${sp(n)} = ${fmt(100/2**n)} %.`,'Tras n periodos queda (1/2)ⁿ')}]
+};
+
+const CB=[
+['ari','√a · √b es igual a…','√(a·b)',['√(a + b)','a·b','√a + √b'],'El producto de raíces del mismo índice es la raíz del producto.'],
+['ari','Si a ≠ 0, a⁰ vale…','1',['0','a','No está definido'],'Cualquier número distinto de 0 elevado a 0 da 1.'],
+['ari','log (a·b) es igual a…','log a + log b',['log a · log b','log a − log b','a · log b'],'El logaritmo de un producto es la suma de los logaritmos.'],
+['ari','log (aⁿ) es igual a…','n · log a',['(log a)ⁿ','log n + log a','log a / n'],'El exponente sale multiplicando.'],
+['ari','log 1 (en cualquier base) vale…','0',['1','La base','No existe'],'b⁰ = 1, así que log_b 1 = 0.'],
+['ecu','Si una magnitud aumenta un 25 %, se multiplica por…','1,25',['0,25','25','0,75'],'Aumentar un p % es multiplicar por (1 + p/100).'],
+['tri','sen²α + cos²α es igual a…','1',['0','tg α','2'],'Identidad fundamental de la trigonometría.'],
+['tri','tg α es igual a…','sen α / cos α',['cos α / sen α','sen α · cos α','1 / sen α'],'Por definición, la tangente es seno entre coseno.'],
+['tri','Los ángulos interiores de un triángulo suman…','180°',['360°','90°','270°'],'Siempre 180° (π rad).'],
+['mtx','El producto de matrices en general…','no es conmutativo (A·B ≠ B·A)',['es conmutativo','solo existe para matrices cuadradas','se hace elemento a elemento'],'Por eso en las ecuaciones matriciales importa si multiplicas por la izquierda o por la derecha.'],
+['mtx','Una matriz es simétrica si…','A = Aᵗ',['A = −Aᵗ','|A| = 0','A·A = I'],'Si A = −Aᵗ es antisimétrica.'],
+['mtx','El rango de una matriz es…','el número de filas (o columnas) linealmente independientes',['el número de filas','el valor del determinante','el número de elementos no nulos'],'Se calcula por Gauss o por menores.'],
+['det','Si se intercambian dos filas de una matriz, su determinante…','cambia de signo',['no cambia','se anula','se duplica'],'Propiedad de los determinantes.'],
+['det','Si una matriz tiene dos filas iguales, su determinante…','vale 0',['vale 1','cambia de signo','se duplica'],'También vale 0 si una fila es combinación lineal de otras.'],
+['det','Una matriz cuadrada tiene inversa si y solo si…','su determinante es distinto de 0',['es simétrica','todos sus elementos son distintos de 0','su determinante es 1'],'Si |A| = 0 la matriz es singular y no se puede invertir.'],
+['sis','Un sistema con infinitas soluciones se llama…','compatible indeterminado',['compatible determinado','incompatible','homogéneo'],'Determinado: una solución. Indeterminado: infinitas. Incompatible: ninguna.'],
+['sis','Un sistema homogéneo (términos independientes nulos)…','siempre es compatible',['siempre es incompatible','siempre tiene infinitas soluciones','nunca tiene solución'],'Siempre admite la solución trivial (0, 0, 0).'],
+['vec','Si el producto escalar de dos vectores no nulos es 0, son…','perpendiculares',['paralelos','iguales','opuestos'],'u·v = |u|·|v|·cos α; si da 0, α = 90°.'],
+['vec','El producto vectorial u × v es un vector…','perpendicular a u y a v',['paralelo a u','igual a v × u','de módulo u·v'],'Además v × u = −(u × v) y su módulo es el área del paralelogramo.'],
+['vec','El valor absoluto del producto mixto [u, v, w] es…','el volumen del paralelepípedo que forman',['el área del triángulo','la longitud de u','siempre 0'],'Si vale 0, los tres vectores son coplanarios (linealmente dependientes).'],
+['geo','El vector normal del plano 2x − y + 3z − 5 = 0 es…','(2, −1, 3)',['(2, −1, −5)','(−5, 2, −1)','(1, 1, 1)'],'Los coeficientes de x, y, z son el vector normal.'],
+['geo','Dos planos con vectores normales proporcionales son…','paralelos o coincidentes',['perpendiculares','secantes','imposibles'],'Si además los términos independientes guardan la proporción, son coincidentes.'],
+['fun','El dominio de f(x) = √x es…','x ≥ 0',['x > 0','todos los reales','x ≤ 0'],'No hay raíces cuadradas reales de números negativos; √0 = 0 sí existe.'],
+['fun','El teorema de Bolzano asegura que si f es continua en [a, b] y f(a), f(b) tienen signos distintos…','existe c en (a, b) con f(c) = 0',['f es derivable','f tiene un máximo en (a, b)','f(a) = f(b)'],'Garantiza al menos una raíz en el intervalo.'],
+['lim','¿Cuál de estas es una indeterminación?','0/0',['1/0','0/5','∞ + ∞'],'Indeterminaciones: 0/0, ∞/∞, ∞ − ∞, 0·∞, 1^∞, 0⁰, ∞⁰.'],
+['lim','Una función es continua en x = a si…','existe f(a), existe el límite y ambos coinciden',['existe f(a)','existe el límite','es derivable en a'],'Las tres condiciones a la vez.'],
+['der','La derivada de una constante es…','0',['1','la propia constante','x'],'Una constante no varía: su derivada es 0.'],
+['der','La derivada de sen x es…','cos x',['−cos x','−sen x','tg x'],'(sen x)′ = cos x y (cos x)′ = −sen x.'],
+['der','La derivada de eˣ es…','eˣ',['x·eˣ⁻¹','ln x','1/x'],'eˣ es su propia derivada.'],
+['der','La derivada de ln x es…','1/x',['ln x / x','x','eˣ'],'(ln x)′ = 1/x.'],
+['der','Si una función es derivable en un punto, entonces en ese punto…','es continua',['tiene un máximo','vale 0','no es continua'],'Derivable ⇒ continua (pero no al revés: |x| es continua y no derivable en 0).'],
+['est','Si f′(a) = 0 y f″(a) > 0, en x = a hay…','un mínimo relativo',['un máximo relativo','un punto de inflexión','una discontinuidad'],'f″ > 0 → cóncava hacia arriba (∪) → mínimo.'],
+['est','Si f″(x) > 0 en un intervalo, la función es…','cóncava hacia arriba (∪)',['cóncava hacia abajo (∩)','decreciente','constante'],'El signo de f″ da la curvatura.'],
+['int','∫ cos x dx es…','sen x + C',['−sen x + C','cos x + C','tg x + C'],'Porque la derivada de sen x es cos x.'],
+['int','Si f(x) < 0 en [a, b], la integral ∫ₐᵇ f(x) dx…','es negativa (el área es su valor absoluto)',['es positiva','vale 0','no existe'],'Para áreas bajo el eje X se toma el valor absoluto.'],
+['sta','La moda de un conjunto de datos es…','el valor que más se repite',['el valor central','la media','la diferencia entre el mayor y el menor'],'Mediana = central; moda = más frecuente; rango = máx − mín.'],
+['sta','La desviación típica es…','la raíz cuadrada de la varianza',['el cuadrado de la varianza','la media de los datos','el rango dividido entre 2'],'σ = √σ²; mide la dispersión en las mismas unidades que los datos.'],
+['sta','Un coeficiente de correlación r = −0,95 indica…','fuerte relación lineal inversa',['fuerte relación lineal directa','ausencia de relación','relación débil'],'|r| cerca de 1: fuerte; signo −: cuando una sube la otra baja.'],
+['sta','En la estadística bidimensional, el signo de la covarianza indica…','si la relación es directa o inversa',['la fuerza de la relación','la media de x','la pendiente exacta'],'La fuerza la da el coeficiente de Pearson r.'],
+['pro','La probabilidad de un suceso imposible es…','0',['1','0,5','No se puede calcular'],'Va de 0 (imposible) a 1 (seguro).'],
+['pro','Si A y B son independientes, P(A ∩ B) =','P(A) · P(B)',['P(A) + P(B)','P(A) − P(B)','P(A) / P(B)'],'Independientes: se multiplican.'],
+['pro','P(no A) es igual a…','1 − P(A)',['P(A)','1 + P(A)','1 / P(A)'],'Suceso contrario.'],
+['cie','El orden habitual del método científico es…','observación, hipótesis, experimentación y conclusiones',['hipótesis, conclusiones, observación y experimentación','experimentación, observación, hipótesis y ley','conclusiones, hipótesis, observación y experimentación'],'Primero se observa, luego se propone una hipótesis que se contrasta experimentalmente.'],
+['cie','El razonamiento que va de casos concretos a conclusiones generales es…','inductivo',['deductivo','analógico','abductivo'],'Deductivo es al revés: de lo general a lo particular.'],
+['cie','¿Cuál de estas magnitudes es vectorial?','Velocidad',['Masa','Temperatura','Energía'],'Las vectoriales tienen módulo, dirección y sentido.'],
+['cie','¿Cuál es una magnitud fundamental del SI?','La intensidad de corriente',['La fuerza','La velocidad','La energía'],'Fundamentales: longitud, masa, tiempo, intensidad de corriente, temperatura, cantidad de sustancia e intensidad luminosa.'],
+['cie','La unidad de potencia en el SI es…','el vatio (W)',['el julio (J)','el kilovatio-hora (kWh)','el caballo (CV)'],'W = J/s. El kWh es energía.'],
+['cie','La diferencia entre el valor medido y el real, en valor absoluto, es el…','error absoluto',['error relativo','error sistemático','error porcentual'],'El relativo es el absoluto dividido entre el valor real.'],
+['cie','Un error que se repite siempre en el mismo sentido (por ejemplo, una balanza mal calibrada) es…','sistemático',['accidental','relativo','aleatorio'],'Los accidentales (aleatorios) varían al azar y se reducen repitiendo medidas.'],
+['mec','En un MRU la aceleración es…','cero',['constante y distinta de cero','variable','igual a g'],'Velocidad constante → sin aceleración.'],
+['mec','En una gráfica velocidad–tiempo, el área bajo la curva es…','el desplazamiento',['la aceleración','la fuerza','la velocidad media'],'Y la pendiente de v–t es la aceleración.'],
+['mec','Sin rozamiento, dos objetos de distinta masa soltados a la vez desde la misma altura…','llegan al suelo a la vez',['llega antes el más pesado','llega antes el más ligero','depende de su volumen'],'Todos caen con la misma aceleración g.'],
+['dyn','Si la fuerza neta sobre un cuerpo es cero, este…','sigue en reposo o con velocidad constante',['se detiene poco a poco','acelera','cae'],'1ª ley de Newton (inercia).'],
+['dyn','Las fuerzas de acción y reacción…','son iguales y opuestas y actúan sobre cuerpos distintos',['actúan sobre el mismo cuerpo y se anulan','la acción siempre es mayor','solo existen si hay contacto'],'3ª ley de Newton.'],
+['dyn','Si no hay rozamiento, la energía mecánica…','se conserva',['aumenta','disminuye','se convierte en calor'],'Em = Ec + Ep = constante.'],
+['dyn','La 1ª ley de Kepler dice que los planetas describen…','órbitas elípticas con el Sol en un foco',['órbitas circulares con el Sol en el centro','espirales','órbitas elípticas con el Sol en el centro'],'2ª ley: barren áreas iguales en tiempos iguales. 3ª: T² ∝ r³.'],
+['dyn','Para que un sólido rígido esté en equilibrio estático hace falta que…','la fuerza neta y el momento neto sean cero',['solo la fuerza neta sea cero','solo el momento sea cero','no actúe ninguna fuerza'],'Equilibrio de traslación y de rotación.'],
+['gra','En el SI, la intensidad del campo gravitatorio se expresa en…','N/kg',['N/m','J/kg','N·m'],'g = F/m → N/kg, que equivale a m/s².'],
+['gra','El potencial gravitatorio se mide en…','J/kg',['N/kg','J','N·m/s'],'V = Ep/m.'],
+['gra','La energía potencial gravitatoria (tomando 0 en el infinito) es siempre…','negativa',['positiva','cero','igual a la cinética'],'Ep = −G·M·m/r.'],
+['gra','La velocidad de escape de un planeta depende de…','su masa y su radio, no de la masa del objeto',['la masa del objeto lanzado','la dirección de lanzamiento solamente','la atmósfera únicamente'],'v_e = √(2GM/R).'],
+['elc','Dos cargas del mismo signo…','se repelen',['se atraen','no interaccionan','se neutralizan'],'Iguales se repelen, opuestas se atraen.'],
+['elc','Las líneas del campo eléctrico…','salen de las cargas positivas y entran en las negativas',['salen de las negativas','son siempre circulares','pueden cruzarse'],'Nunca se cruzan.'],
+['elc','Las superficies equipotenciales son…','perpendiculares a las líneas de campo',['paralelas a las líneas de campo','siempre planas','zonas donde el campo es nulo'],'Mover una carga sobre ellas no cuesta trabajo.'],
+['elc','Una diferencia clave entre el campo gravitatorio y el eléctrico es que…','el gravitatorio siempre es atractivo',['el eléctrico siempre es atractivo','el gravitatorio depende del medio','el eléctrico no es conservativo'],'El eléctrico puede atraer o repeler y depende del medio (k).'],
+['mag','La unidad del campo magnético en el SI es…','el tesla (T)',['el weber (Wb)','el gauss solamente','el henrio (H)'],'1 Wb = 1 T·m² es la unidad de flujo.'],
+['mag','Una carga que se mueve paralela a un campo magnético…','no sufre fuerza magnética',['sufre la fuerza máxima','se para','describe una circunferencia'],'F = q·v·B·sen θ y sen 0° = 0.'],
+['mag','La fuerza magnética sobre una carga en movimiento…','no realiza trabajo',['siempre acelera la carga','frena la carga','es paralela a la velocidad'],'Es perpendicular a v: cambia la dirección, no el módulo de la velocidad.'],
+['mag','La experiencia de Oersted demostró que…','una corriente eléctrica crea un campo magnético',['los imanes crean corriente','la luz es una onda','la carga está cuantizada'],'Una brújula se desvía cerca de un cable con corriente.'],
+['mag','Dos conductores paralelos con corrientes en el mismo sentido…','se atraen',['se repelen','no interaccionan','giran'],'En sentidos opuestos se repelen.'],
+['ind','La ley de Lenz dice que la corriente inducida…','se opone a la variación de flujo que la produce',['refuerza la variación de flujo','siempre circula en sentido horario','no depende del flujo'],'De ahí el signo − en la ley de Faraday.'],
+['ind','La unidad del flujo magnético es…','el weber (Wb)',['el tesla (T)','el voltio (V)','el henrio (H)'],'Wb = T·m².'],
+['ind','Un transformador solo funciona con…','corriente alterna',['corriente continua','cualquier corriente','imanes permanentes'],'Necesita un flujo variable para inducir tensión en el secundario.'],
+['mas','En un MAS, la aceleración es máxima…','en los extremos',['en el centro','en todos los puntos por igual','nunca'],'a = −ω²·x; la velocidad es máxima en el centro.'],
+['mas','En un MAS, la energía mecánica…','se mantiene constante',['es máxima en el centro','es nula en los extremos','aumenta con el tiempo'],'Se reparte entre cinética y potencial: E = ½kA².'],
+['mas','El periodo de un péndulo simple (oscilaciones pequeñas) no depende de…','la masa',['la longitud','la gravedad','ninguna de ellas'],'T = 2π√(L/g).'],
+['mas','La resonancia se produce cuando…','la frecuencia de la fuerza externa coincide con la natural del sistema',['no hay rozamiento','la amplitud es pequeña','el periodo es 0'],'La amplitud crece mucho; por eso las tropas rompen el paso en los puentes.'],
+['ond','Las ondas sonoras en el aire son…','longitudinales',['transversales','electromagnéticas','estacionarias siempre'],'El aire vibra en la misma dirección en que avanza la onda.'],
+['ond','El sonido no se propaga en…','el vacío',['el agua','el acero','el aire'],'Es una onda mecánica: necesita un medio.'],
+['ond','Una onda transporta…','energía, pero no materia',['materia y energía','solo materia','nada'],'Las partículas oscilan alrededor de su posición.'],
+['ond','La intensidad de una onda esférica disminuye con la distancia como…','1/r²',['1/r','r²','no disminuye'],'La energía se reparte sobre una esfera de área 4πr².'],
+['feo','La polarización solo puede darse en ondas…','transversales',['longitudinales','sonoras','de cualquier tipo'],'Por eso la luz se puede polarizar y el sonido no.'],
+['feo','La difracción es más apreciable cuando la abertura es…','de tamaño parecido a la longitud de onda',['mucho mayor que λ','infinita','nula'],'Por eso oímos detrás de una esquina pero no vemos.'],
+['feo','En una onda estacionaria, los puntos que no vibran se llaman…','nodos',['vientres','crestas','focos'],'Los de máxima amplitud son los vientres; entre dos nodos hay λ/2.'],
+['feo','La interferencia es constructiva cuando la diferencia de caminos es…','un número entero de longitudes de onda',['un número impar de semilongitudes de onda','cero siempre','λ/4'],'Destructiva: número impar de λ/2.'],
+['luz','La luz en el vacío viaja a unos…','300 000 km/s',['340 m/s','3000 km/s','30 000 km/s'],'c ≈ 3·10⁸ m/s.'],
+['luz','En el espectro visible, el color de mayor frecuencia es…','el violeta',['el rojo','el verde','el amarillo'],'Rojo: mayor λ y menor frecuencia.'],
+['luz','La dispersión de la luz blanca en un prisma se debe a que…','el índice de refracción depende de la longitud de onda',['la luz se refleja totalmente','la luz es longitudinal','el prisma emite colores'],'Cada color se desvía un ángulo distinto.'],
+['luz','Las ondas electromagnéticas…','se propagan también en el vacío',['necesitan un medio material','son longitudinales','viajan a 340 m/s'],'Son campos E y B perpendiculares que se sostienen mutuamente.'],
+['opt','Un espejo plano forma una imagen…','virtual, derecha y del mismo tamaño',['real e invertida','virtual y más pequeña','real y mayor'],'Simétrica respecto al espejo.'],
+['opt','Una lente divergente siempre da, de un objeto real, una imagen…','virtual, derecha y más pequeña',['real e invertida','real y mayor','virtual y mayor'],'Por eso se usan para corregir la miopía.'],
+['opt','La miopía se corrige con lentes…','divergentes',['convergentes','cilíndricas siempre','planas'],'La hipermetropía y la presbicia, con convergentes.'],
+['rel','Según la relatividad especial, la velocidad de la luz en el vacío…','es la misma para todos los observadores inerciales',['depende del movimiento del observador','es infinita','depende de la fuente'],'Es el 2º postulado de Einstein.'],
+['rel','Un reloj en movimiento respecto a un observador…','marcha más despacio para ese observador',['marcha más deprisa','no cambia','se detiene'],'Dilatación del tiempo: t = γ·t₀.'],
+['cua','En el efecto fotoeléctrico, aumentar la intensidad de la luz (por encima del umbral)…','aumenta el número de electrones, no su energía',['aumenta la energía de los electrones','no cambia nada','hace que se emitan aunque f sea menor que el umbral'],'La energía de cada electrón depende de la frecuencia.'],
+['cua','La hipótesis de De Broglie dice que…','las partículas tienen también comportamiento ondulatorio',['la luz es solo una onda','los electrones no tienen masa','la energía es continua'],'λ = h/(m·v).'],
+['cua','El principio de incertidumbre de Heisenberg dice que…','no se pueden conocer a la vez con precisión total la posición y el momento',['la energía se conserva','la luz tiene velocidad constante','los electrones giran en órbitas fijas'],'Δx·Δp ≥ h/4π.'],
+['cua','En el modelo de Bohr, el átomo emite luz cuando…','un electrón salta a una órbita de menor energía',['el núcleo se rompe','un electrón sube de nivel','gira más deprisa'],'E fotón = E inicial − E final = h·f.'],
+['nuc','La radiación más penetrante es la…','gamma (γ)',['alfa (α)','beta (β)','todas igual'],'α se detiene con una hoja de papel; β con aluminio; γ necesita plomo u hormigón.'],
+['nuc','Los isótopos de un elemento tienen…','el mismo número de protones y distinto de neutrones',['distinto número de protones','el mismo número másico','distinta carga nuclear'],'Mismo Z, distinto A.'],
+['nuc','La fusión nuclear consiste en…','unir núcleos ligeros para formar uno más pesado',['romper núcleos pesados','emitir electrones','absorber neutrones lentos'],'Es la fuente de energía del Sol; la fisión es la de las centrales nucleares.'],
+['nuc','En las reacciones nucleares se libera energía porque…','parte de la masa se transforma en energía (E = mc²)',['se queman los átomos','se crean electrones','aumenta la masa'],'El defecto de masa se convierte en energía.']
+];
+
+const ALL=[...TOP.m,...TOP.f].map(x=>x[0]);
+const GEN={fgen:'Física · test general',mgen:'Matemáticas · test general'};
+const tname=t=>GEN[t]||([...TOP.m,...TOP.f].find(x=>x[0]===t)||[0,'Pregunta'])[1];
+const AT={cie:['cie'],dyn:['mec','dyn'],gra:['gra'],elc:['elc'],mag:['mag'],ind:['ind'],mas:['mas'],ond:['ond','feo'],luz:['luz','feo'],opt:['opt'],cua:['rel','cua','nuc'],ari:['ari'],mtx:['mtx'],det:['det'],sis:['sis'],geo:['vec','geo'],fun:['fun'],lim:['lim'],der:['der'],est:['est'],int:['int'],pro:['sta','pro'],fgen:['fgen'],mgen:['mgen']};
+const MSET=new Set(['ari','mtx','det','sis','geo','fun','lim','der','est','int','pro','mgen']);
+let ACAD=[],acadByT={},IMG={},PK={};
+function pack(t){if(!PK[t])PK[t]=fetch('p/'+t+'.json').then(r=>r.json()).then(m=>{Object.assign(IMG,m);PK[t]=true}).catch(()=>{delete PK[t]});return PK[t]===true?Promise.resolve():PK[t]}
+const ready=t=>PK[t]===true;
+const rs=s=>String(s||'').replace(/src="(i\/[^"]+)"/g,(m,k)=>`src="${IMG[k]||''}"`);
+async function need(ts,el){const u=[...new Set(ts)].filter(t=>!ready(t));if(!u.length)return;if(el){el.dataset.l=el.innerHTML;el.innerHTML='<strong>Cargando preguntas…</strong>'}await Promise.all(u.map(pack));if(el&&el.dataset.l)el.innerHTML=el.dataset.l}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function AQ(x,t){const img=a=>a.map(s=>`<img src="${s}" alt="" loading="lazy">`).join('');
+ return{q:(x.q?`<p style="margin:0">${esc(x.q)}</p>`:'')+img(x.qi),o:x.o.map(esc),a:esc(x.o[x.a]),fix:1,aid:x.id,t:t||AT[x.t][0],
+ e:(x.fb?`<p>${esc(x.fb)}</p>`:'')+img(x.fi)+(x.v?`<p><a href="${x.v}" target="_blank" rel="noopener">Ver la resolución en vídeo ↗</a></p>`:'')+(!x.fb&&!x.fi.length&&!x.v?'<p>Pregunta del banco de tu academia.</p>':'')+`<p class="src">${esc(x.src)}</p>`,h:''}}
+function pickAcad(list,n){const seen=new Set(S.seen||[]);const a=shuffle(list.filter(x=>!seen.has(x.id))),b=shuffle(list.filter(x=>seen.has(x.id)));return[...a,...b].slice(0,n)}
+function Q(t){const al=(acadByT[t]||[]).filter(x=>ready(x.t));if(al.length&&Math.random()<.4){const x=pickAcad(al,1)[0];return AQ(x,t)}const cs=CB.filter(c=>c[0]===t),gs=G[t]||[];let o;if(cs.length&&(!gs.length||Math.random()<.3)){const c=pick(cs);o=mk(c[1],c[2],c[3],c[4],'')}else o=pick(gs)();o.t=t;return o}
+//GEN-END
+
+const FC={m:[['Potencias','aᵐ·aⁿ = aᵐ⁺ⁿ · aᵐ/aⁿ = aᵐ⁻ⁿ · (aᵐ)ⁿ = aᵐ·ⁿ · a⁻ⁿ = 1/aⁿ'],['Logaritmo','log_b x = y  ⇔  bʸ = x'],['Propiedades de los logaritmos','log(a·b) = log a + log b · log(a/b) = log a − log b · log aⁿ = n·log a'],['Ecuación de 2º grado','x = (−b ± √(b² − 4ac)) / 2a · Δ > 0: dos · Δ = 0: una · Δ < 0: ninguna'],['Interés simple','I = C·r·t / 100'],['Razones de 30°, 45°, 60°','sen: 1/2, √2/2, √3/2 · cos: √3/2, √2/2, 1/2'],['Identidad fundamental','sen²α + cos²α = 1 · tg α = sen α / cos α'],['Teoremas del seno y del coseno','a/sen A = b/sen B · a² = b² + c² − 2bc·cos A'],['Producto de matrices','(m×n)·(n×p) = m×p; fila por columna; no conmutativo'],['Determinante 2×2 y Sarrus','|a b; c d| = ad − bc · 3×3: diagonales principales − secundarias'],['Propiedades de determinantes','|AB| = |A|·|B| · |Aᵗ| = |A| · |kA| = kⁿ|A| · |A⁻¹| = 1/|A|'],['Inversa','A⁻¹ = (Adj A)ᵗ / |A|  (existe si |A| ≠ 0)'],['Rouché-Fröbenius','rg A ≠ rg A*: SI · rg A = rg A* = nº incógnitas: SCD · menor: SCI'],['Regla de Cramer','x = |Aₓ| / |A|'],['Producto escalar','u·v = u₁v₁ + u₂v₂ + u₃v₃ = |u|·|v|·cos α'],['Producto vectorial','|u × v| = área del paralelogramo; perpendicular a u y v'],['Producto mixto','[u,v,w] = det(u,v,w) = volumen del paralelepípedo'],['Plano','ax + by + cz + D = 0 con normal n = (a, b, c)'],['Distancia punto-plano','d = |ax₀ + by₀ + cz₀ + D| / √(a² + b² + c²)'],['Límites en el infinito (cocientes)','grado num = grado den: cociente de coeficientes · menor: 0 · mayor: ±∞'],['Asíntotas','Vertical: x = a si f → ∞ · Horizontal: y = lím f(x) en ±∞ · Oblicua: y = mx + n'],['Derivadas básicas','(xⁿ)′ = n·xⁿ⁻¹ · (eˣ)′ = eˣ · (ln x)′ = 1/x · (sen x)′ = cos x · (cos x)′ = −sen x'],['Producto, cociente y cadena','(fg)′ = f′g + fg′ · (f/g)′ = (f′g − fg′)/g² · (f∘g)′ = f′(g)·g′'],['Recta tangente','y − f(a) = f′(a)·(x − a)'],['Máximos, mínimos e inflexión','f′ = 0 y f″ < 0: máximo · f″ > 0: mínimo · f″ = 0 con cambio de signo: inflexión'],['Integrales inmediatas','∫xⁿ dx = xⁿ⁺¹/(n + 1) · ∫1/x = ln|x| · ∫eˣ = eˣ · ∫cos = sen · ∫sen = −cos'],['Regla de Barrow','∫ₐᵇ f(x) dx = F(b) − F(a)'],['Estadística','x̄ = Σxᵢ/n · σ² = Σ(xᵢ − x̄)²/n · σ = √σ²'],['Correlación','r = σxy/(σx·σy), entre −1 y 1'],['Probabilidad','Laplace: favorables/posibles · P(A∪B) = P(A) + P(B) − P(A∩B) · P(A|B) = P(A∩B)/P(B)'],['Combinatoria','C(n,k) = n!/(k!(n − k)!) · V(n,k) = n!/(n − k)!']],
+f:[['Notación científica','a·10ⁿ con 1 ≤ a < 10'],['Errores','Ea = |medido − real| · Er = Ea / real'],['MRU y MRUA','x = x₀ + vt · v = v₀ + at · x = x₀ + v₀t + ½at² · v² = v₀² + 2aΔx'],['Caída libre y tiros','v = gt · h = ½gt² · h máx = v₀²/2g · tiro horizontal: x = vₓt'],['Newton','F = m·a · P = m·g · Fr = μ·N'],['Trabajo y energía','W = F·d·cos θ · Ec = ½mv² · Ep = mgh · P = W/t'],['Cantidad de movimiento','p = m·v · I = F·Δt = Δp'],['Movimiento circular','v = ω·r · a_c = v²/r · ω = 2π/T'],['Leyes de Kepler','Órbitas elípticas · áreas iguales en tiempos iguales · T² ∝ r³'],['Gravitación','F = G·M·m/r² · g = G·M/r² · Ep = −G·M·m/r · V = −G·M/r'],['Órbitas','v orbital = √(GM/r) · v escape = √(2GM/R)'],['Coulomb y campo eléctrico','F = k·q·q′/r² · E = k·q/r² · V = k·q/r · W = q·ΔV'],['Fuerza de Lorentz','F = q·v·B·sen θ · r = m·v/(q·B)'],['Campo de un hilo','B = μ₀·I/(2π·r) · F sobre hilo = I·L·B·sen θ'],['Inducción','Φ = B·S·cos θ · ε = −N·ΔΦ/Δt (Faraday-Lenz)'],['Transformador','V₂/V₁ = N₂/N₁'],['MAS','x = A·sen(ωt + φ) · v máx = Aω · a máx = Aω² · a = −ω²x'],['Muelle y péndulo','T = 2π√(m/k) · T = 2π√(L/g) · E = ½kA²'],['Ondas','v = λ·f · T = 1/f · y = A·sen(ωt − kx) · k = 2π/λ'],['Sonido','β = 10·log(I/I₀), I₀ = 10⁻¹² W/m²'],['Ondas estacionarias','Cuerda fija: λₙ = 2L/n'],['Doppler (foco móvil)','f′ = f·v/(v ∓ v_f): − si se acerca, + si se aleja'],['Luz','n = c/v · Snell: n₁·sen θ₁ = n₂·sen θ₂ · sen L = n₂/n₁'],['Lentes delgadas','1/s′ − 1/s = 1/f′ · β = s′/s · P = 1/f′ (D)'],['Espejos','1/s′ + 1/s = 1/f · f = R/2 · β = −s′/s'],['Relatividad','γ = 1/√(1 − v²/c²) · t = γt₀ · L = L₀/γ · E = mc²'],['Cuántica','E = h·f · Ec máx = hf − W₀ · λ = h/(m·v)'],['Radiactividad','N = N₀·(1/2)^(t/T½) · α: A−4, Z−2 · β⁻: Z+1']]};
+
+const RANKS=[['Soldado',0],['Soldado de 1ª',100],['Cabo',250],['Cabo 1º',500],['Cabo Mayor',850],['Sargento',1300],['Sargento 1º',1900],['Brigada',2700],['Subteniente',3700],['Suboficial Mayor',5000]];
+const rankOf=xp=>{let i=0;RANKS.forEach((r,j)=>{if(xp>=r[1])i=j});return i};
+function ins(i){
+  let marks='';
+  if(i===0)marks='<path d="M50 40l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="#d9a521"/>';
+  else if(i<5){for(let k=0;k<i;k++){const y=74-k*14;marks+=`<polyline points="28,${y} 50,${y-14} 72,${y}" fill="none" stroke="#d9a521" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`}}
+  else{const n=i-4;for(let k=0;k<Math.min(n,4);k++){marks+=`<rect x="30" y="${70-k*12}" width="40" height="7" rx="2" fill="#d9a521"/>`}if(n>=5)marks+='<path d="M50 18l3 7 8 .5-6 5 2 8-7-4-7 4 2-8-6-5 8-.5z" fill="#d9a521"/>'}
+  return `<svg class="ins" viewBox="0 0 100 108" role="img" aria-label="Emblema de ${RANKS[i][0]}"><path d="M50 8 L88 20 V54 C88 78 70 94 50 102 C30 94 12 78 12 54 V20 Z" fill="#2b3818" stroke="#d9a521" stroke-width="3"/><path d="M50 14 L82 24 V54 C82 74 67 88 50 95" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"/>${marks}</svg>`;
+}
+
+const KEY='ascenso-v1',GOAL=20;
+const blank=()=>({xp:0,streak:0,lastDay:'',today:{d:'',n:0,ok:0},tp:{},fallos:[],mis:'',ts:0,seen:[]});
+let S=blank();try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(blank(),JSON.parse(r))}catch(e){}
+let ref=null,tmr=null,cloud=false,CRED=null,RANK=null,RANKT=0,view='home',sub='m',Z=null,timer=null;
+const app=document.getElementById('app');
+const dstr=d=>d.toLocaleDateString('sv-SE');
+const today=()=>dstr(new Date());
+const yest=()=>{const d=new Date();d.setDate(d.getDate()-1);return dstr(d)};
+const streakNow=()=>(S.lastDay===today()||S.lastDay===yest())?S.streak:0;
+const SB='https://xdrjltzsglascuhptpyl.supabase.co',SBK='sb_publishable_JDGgZvNOTWK4SBQ8RDMvmw_4Np7U1zC';
+async function rpc(fn,args){const r=await fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SBK,'Content-Type':'application/json'},body:JSON.stringify(args||{})});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
+try{CRED=JSON.parse(localStorage.getItem('ascenso-cred')||'null')}catch(e){}
+function save(){S.ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(CRED){clearTimeout(tmr);tmr=setTimeout(()=>{rpc('ascenso_save',{p_name:CRED.n,p_pin:CRED.p,p_state:S}).then(r=>{cloud=!r.error;if(!r.error){RANKT=0;if(view==='home')loadRank(true)}}).catch(()=>{cloud=false})},1200)}}
+const ERR={NO_USER:'No existe ese nombre. ¿Quieres crear la cuenta?',BAD_PIN:'PIN incorrecto.',LOCKED:'Demasiados intentos. Espera 15 minutos.',TAKEN:'Ese nombre ya está cogido. Prueba otro.',BAD_NAME:'El nombre debe tener entre 3 y 20 caracteres.',BAD_PIN_FORMAT:'El PIN debe tener entre 4 y 20 caracteres.'};
+function login(msg){view='login';app.innerHTML=`<main class="wrap" style="max-width:520px;padding-top:clamp(24px,8vh,80px)">
+ <div style="display:flex;gap:16px;align-items:center">${ins(0)}<div><h1 class="st" style="margin:0;font-size:clamp(32px,7vw,46px);line-height:1.05">Ascenso</h1><p style="margin:4px 0 0;color:var(--mute)">Física y Matemáticas para el ascenso a Suboficial</p></div></div>
+ <form class="qcard" id="lf" style="margin-top:22px">
+  <label for="ln" style="font-weight:600">Tu nombre o apodo</label><input id="ln" autocomplete="username" required minlength="3" maxlength="20" style="display:block;width:100%;font:inherit;font-size:16px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin:6px 0 14px">
+  <label for="lp" style="font-weight:600">PIN (4 o más cifras o letras)</label><input id="lp" type="password" autocomplete="current-password" required minlength="4" maxlength="20" style="display:block;width:100%;font:inherit;font-size:16px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin:6px 0 6px">
+  <p id="lm" style="min-height:24px;margin:6px 0;color:var(--bad);font-weight:600">${msg||''}</p>
+  <div class="row" style="margin-top:4px"><button class="btn" id="bIn" type="submit">Entrar</button><button class="btn alt" id="bReg" type="button">Crear cuenta</button></div>
+  <p style="font-size:14px;color:var(--mute);margin:14px 0 0">Con tu nombre y PIN entras desde el móvil o el ordenador y sigues por donde ibas. Tu nombre aparecerá en la clasificación de compañeros. Usa un PIN que no uses para nada más.</p>
+ </form>
+ <button class="btn alt" id="bLoc" style="margin-top:4px">Probar sin cuenta (solo en este dispositivo)</button>
+ </main>`;
+ const go=async reg=>{const n=document.getElementById('ln').value.trim(),p=document.getElementById('lp').value,m=document.getElementById('lm');if(n.length<3||p.length<4){m.textContent='Escribe un nombre (3+ letras) y un PIN (4+).';return}m.style.color='var(--mute)';m.textContent='Conectando…';
+  try{const r=await rpc(reg?'ascenso_register':'ascenso_login',{p_name:n,p_pin:p});if(r.error){m.style.color='var(--bad)';m.textContent=ERR[r.error]||r.error;return}
+   CRED={n:r.name,p};try{localStorage.setItem('ascenso-cred',JSON.stringify(CRED))}catch(e){}
+   const rs_=r.state||{};if(S.owner&&S.owner.toLowerCase()!==r.name.toLowerCase())S=blank();if(rs_.ts&&rs_.ts>(S.ts||0))S=Object.assign(blank(),rs_);S.owner=r.name;cloud=true;save();home()}catch(e){m.style.color='var(--bad)';m.textContent='No hay conexión. Prueba de nuevo.'}};
+ document.getElementById('lf').onsubmit=e=>{e.preventDefault();go(false)};
+ document.getElementById('bReg').onclick=()=>go(true);
+ document.getElementById('bLoc').onclick=()=>{try{localStorage.setItem('ascenso-local','1')}catch(e){}home()};
+}
+async function loadRank(force){if(!force&&RANK&&Date.now()-RANKT<60000)return;try{RANK=await rpc('ascenso_ranking');RANKT=Date.now();const b=document.getElementById('rk');if(b&&view==='home')b.innerHTML=rankHtml()}catch(e){}}
+function rankHtml(){if(!RANK)return'<p class="foot" style="margin:0">Cargando clasificación…</p>';if(!RANK.length)return'<p class="foot" style="margin:0">Aún no hay nadie. ¡Sé la primera persona!</p>';const me=CRED&&CRED.n.toLowerCase();const top=RANK.slice(0,10),mi=RANK.findIndex(r=>r.name.toLowerCase()===me);const row=(r,i)=>`<li class="rr ${r.name.toLowerCase()===me?'me':''}"><span class="pos">${i+1}</span><span class="nm">${esc(r.name)}</span><span class="rkn">${RANKS[rankOf(r.xp)][0]}</span><span class="pts">${r.xp} XP</span><span class="stk">${r.streak?r.streak+' d':''}</span></li>`;return`<ol class="rank">${top.map(row).join('')}${mi>=10?'<li class="gap">…</li>'+row(RANK[mi],mi):''}</ol>`}
+function touch(){const d=today();if(S.today.d!==d)S.today={d,n:0,ok:0}}
+function mastery(t){const x=S.tp[t];return x&&x.n?x.ok/x.n:null}
+function weakest(list,n){return[...list].sort((a,b)=>{const s=t=>{const x=S.tp[t]||{ok:0,n:0};return(x.ok+1)/(x.n+2)+Math.random()*.25};return s(a)-s(b)}).slice(0,n)}
+
+function home(){
+  view='home';clearInterval(timer);touch();
+  const i=rankOf(S.xp),nx=RANKS[i+1],pct=nx?Math.round((S.xp-RANKS[i][1])/(nx[1]-RANKS[i][1])*100):100;
+  const tn=S.today.n,ringP=Math.min(tn/GOAL,1),C=2*Math.PI*18,done=S.mis===today();
+  const list=TOP[sub],weak=weakest(list.map(x=>x[0]).filter(t=>S.tp[t]&&S.tp[t].n>=3),1)[0];
+  app.innerHTML=`
+  <header class="band"><div class="wrap">
+    <div class="hero">${ins(i)}<div>
+      <h1 class="st">${RANKS[i][0]}</h1>
+      <p class="sub">${nx?`Siguiente empleo: <b>${nx[0]}</b>`:'Has llegado a lo más alto. Sigue en forma.'}</p>
+      <div class="xp" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
+      <div class="xpl"><span>${S.xp} XP</span><span>${nx?`faltan ${nx[1]-S.xp} XP`:''}</span></div>
+    </div></div>
+    <div class="stats">
+      <div class="stat"><svg class="ring" viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="5"/><path d="M22 10c3 5 8 7 8 14a8 8 0 0 1-16 0c0-4 2-6 4-8 0 3 1 4 3 5 0-4-1-7 1-11z" fill="#d9a521"/></svg><div><b>${streakNow()}</b><span>días de racha</span></div></div>
+      <div class="stat"><svg class="ring" viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="5"/><circle cx="22" cy="22" r="18" fill="none" stroke="#d9a521" stroke-width="5" stroke-linecap="round" stroke-dasharray="${C*ringP} ${C}" transform="rotate(-90 22 22)"/></svg><div><b>${tn}/${GOAL}</b><span>preguntas hoy</span></div></div>
+      <div class="stat"><svg class="ring" viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="5"/><path d="M15 22l5 5 9-10" fill="none" stroke="#d9a521" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>${S.fallos.length}</b><span>fallos por repasar</span></div></div>
+    </div>
+  </div></header>
+  <main class="wrap">
+    <div class="mis"><button class="mbtn ${done?'done':''}" id="bMis">
+      <div><h2 class="st">${done?'Misión cumplida':'Misión del día'}</h2><p>${done?'Puedes hacer otra ronda para sumar más experiencia.':'10 preguntas, unos 10 minutos. Se centra en tus puntos débiles y en lo que fallaste.'}</p></div>
+      <span class="go">${done?'Otra ronda':'Empezar'}</span></button></div>
+    <h3>Practicar por tema</h3>
+    <div class="tabs" role="group" aria-label="Materia">
+      <button class="tab" data-s="m" aria-pressed="${sub==='m'}">Matemáticas</button>
+      <button class="tab" data-s="f" aria-pressed="${sub==='f'}">Física</button>
+    </div>
+    <div class="topics">${list.map(([t,n])=>{const m=mastery(t),x=S.tp[t];return`<button class="tp" data-t="${t}"><strong>${n}${t===weak&&m!==null&&m<.8?'<span class="weak">a reforzar</span>':''}</strong><small>${m===null?'sin empezar':Math.round(m*100)+' % · '+x.n}</small><span class="bar"><i style="width:${m===null?0:Math.round(m*100)}%"></i></span></button>`}).join('')}</div>
+    <h3>Clasificación de compañeros</h3>
+    <div class="qcard" id="rk" style="padding:10px 14px">${CRED?rankHtml():'<p class="foot" style="margin:0">Crea una cuenta para aparecer en la clasificación y guardar tu progreso en todos tus dispositivos. <button class="btn alt" id="bAcc" style="margin-top:10px">Crear cuenta o entrar</button></p>'}</div>
+    <h3>Más entrenamiento</h3>
+    <div class="tools">
+      <button class="tool" id="bFal"><strong>Repasar fallos</strong><span>${S.fallos.length?`${S.fallos.length} preguntas que se te resistieron. Al acertarlas, desaparecen.`:'Aún no hay fallos guardados. ¡Bien!'}</span></button>
+      <button class="tool" id="bFic"><strong>Fichas de fórmulas</strong><span>Tarjetas para memorizar: toca para darles la vuelta.</span></button>
+      <button class="tool" data-sim="m"><strong>Simulacro · Matemáticas</strong><span>Como el examen: 60 preguntas en 120 minutos, −0,25 por fallo.</span></button>
+      <button class="tool" data-sim="f"><strong>Simulacro · Física</strong><span>Como el examen: 60 preguntas en 120 minutos, −0,25 por fallo.</span></button>
+    </div>
+    <p class="foot">${CRED?`Has entrado como <b>${esc(CRED.n)}</b>: tu progreso se guarda en tu cuenta y te sigue al móvil o al ordenador. <button class="btn alt" id="bOut" style="min-height:36px;padding:4px 12px;margin-left:6px">Cerrar sesión</button>`:'Tu progreso se guarda solo en este navegador.'} Ejercicios con datos aleatorios: nunca salen dos iguales. Temas del temario de acceso a Suboficial (Matemáticas y Física).</p>
+  </main>`;
+  document.getElementById('bMis').onclick=async e=>{const q=[];const w=weakest(ALL,4);await need([...S.fallos.slice(0,3).filter(x=>x.aid).map(x=>(ACAD.find(y=>y.id===x.aid)||{}).t),...w.flatMap(t=>(acadByT[t]||[]).map(x=>x.t))].filter(Boolean),e.currentTarget);S.fallos.slice(0,3).forEach(x=>q.push({...x,fromF:true}));while(q.length<10)q.push(Q(Math.random()<.6?pick(w):pick(ALL)));start(shuffle(q),'mis','Misión del día')};
+  app.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{sub=b.dataset.s;home()});
+  app.querySelectorAll('.tp').forEach(b=>b.onclick=async()=>{const t=b.dataset.t;await need([...new Set((acadByT[t]||[]).map(x=>x.t))],b);start(Array.from({length:10},()=>Q(t)),'tema',tname(t))});
+  document.getElementById('bFal').onclick=async e=>{if(!S.fallos.length)return;const ac=S.fallos.filter(x=>x.aid).map(x=>(ACAD.find(y=>y.id===x.aid)||{}).t).filter(Boolean);await need(ac,e.currentTarget);start(shuffle(S.fallos).slice(0,10).map(x=>({...x,o:x.fix?x.o:shuffle(x.o),fromF:true})),'fal','Repaso de fallos')};
+  document.getElementById('bFic').onclick=()=>fichas('m',0);
+  app.querySelectorAll('[data-sim]').forEach(b=>b.onclick=async()=>{const s=b.dataset.sim,ts=TOP[s].map(x=>x[0]);let qs;const pool=ACAD.filter(x=>MSET.has(x.t)===(s==='m'));if(pool.length>=60){const exs=pickAcad(pool.filter(x=>x.ex),40),rest=pickAcad(pool.filter(x=>!x.ex),60-exs.length),sel=[...exs,...rest];await need(sel.map(x=>x.t),b);qs=shuffle(sel).map(x=>AQ(x))}else qs=Array.from({length:60},(_,k)=>Q(ts[k%ts.length])).sort(()=>Math.random()-.5);start(qs,'sim','Simulacro · '+(s==='m'?'Matemáticas':'Física'))});
+  app.querySelectorAll('[data-ex]').forEach(b=>b.onclick=async()=>{const s=b.dataset.ex,sel=pickAcad(ACAD.filter(x=>x.ex&&MSET.has(x.t)===(s==='m')),10);await need(sel.map(x=>x.t),b);start(sel.map(x=>AQ(x)),'tema','Exámenes reales · '+(s==='m'?'Matemáticas':'Física'))});
+  app.querySelectorAll('[data-ac]').forEach(b=>b.onclick=async()=>{const s=b.dataset.ac,sel=pickAcad(ACAD.filter(x=>MSET.has(x.t)===(s==='m')),10);await need(sel.map(x=>x.t),b);start(sel.map(x=>AQ(x)),'tema','Banco de la academia · '+(s==='m'?'Matemáticas':'Física'))});
+  const ba=document.getElementById('bAcc');if(ba)ba.onclick=()=>login();
+  const bo=document.getElementById('bOut');if(bo)bo.onclick=()=>{CRED=null;try{localStorage.removeItem('ascenso-cred');localStorage.setItem('ascenso-local','1')}catch(e){}home()};
+  if(CRED)loadRank();
+  window.scrollTo(0,0);
+}
+
+function start(qs,mode,title){Z={qs,mode,title,i:0,ok:0,bad:0,blank:0,xp:0,combo:0,ans:[],r0:rankOf(S.xp),t0:Date.now(),hint:false,locked:false};view='quiz';
+  if(mode==='sim'){clearInterval(timer);timer=setInterval(()=>{const e=document.getElementById('tm');if(e)e.textContent=clock()},1000)}
+  quiz()}
+const clock=()=>{const s=Math.floor((Date.now()-Z.t0)/1000);return`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`};
+function quiz(){
+  const q=Z.qs[Z.i],sim=Z.mode==='sim';Z.hint=false;Z.locked=false;
+  app.innerHTML=`<main class="wrap" style="max-width:780px">
+  <div class="qtop"><button class="x" id="bX" aria-label="Salir">×</button><div class="prog"><i style="width:${Z.i/Z.qs.length*100}%"></i></div><span class="cnt">${Z.i+1}/${Z.qs.length}</span>${sim?`<span class="chip" id="tm">${clock()}</span>`:''}</div>
+  <div class="qcard"><span class="chip">${tname(q.t)}</span> ${!sim&&Z.combo>=3?`<span class="chip combo">Racha ×${Z.combo}</span>`:''}
+    <div class="qtext">${rs(q.q)}</div>
+    <div class="opts ${q.o.every(o=>o.length<=2)?'let':''}">${q.o.map((o,k)=>`<button class="op" data-k="${k}"><span class="k">${'ABCDEFGHIJ'[k]}</span><span>${o}</span></button>`).join('')}</div>
+    <div id="after"></div>
+    <div class="row" id="ctl">${sim?'<button class="btn alt" id="bB">Dejar en blanco</button>':(q.h?'<button class="btn alt" id="bH">Pista (−5 XP)</button>':'')}</div>
+  </div></main>`;
+  document.getElementById('bX').onclick=()=>{clearInterval(timer);home()};
+  app.querySelectorAll('.op').forEach(b=>b.onclick=()=>answer(+b.dataset.k,b));
+  const bh=document.getElementById('bH');if(bh)bh.onclick=()=>{Z.hint=true;bh.remove();document.getElementById('after').innerHTML=`<div class="hint"><b>Pista:</b> ${q.h}</div>`};
+  const bb=document.getElementById('bB');if(bb)bb.onclick=()=>{Z.blank++;Z.ans.push({q,pick:null});next()};
+}
+function fly(el,txt){const r=el.getBoundingClientRect(),s=document.createElement('span');s.className='fly';s.textContent=txt;s.style.left=(r.right-70)+'px';s.style.top=(r.top)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),1000)}
+function answer(k,el){
+  if(Z.locked)return;Z.locked=true;
+  const q=Z.qs[Z.i],good=q.o[k]===q.a,sim=Z.mode==='sim';touch();
+  S.today.n++;if(good)S.today.ok++;
+  if(S.today.n===10&&S.lastDay!==today()){S.streak=S.lastDay===yest()?S.streak+1:1;S.lastDay=today()}
+  if(q.aid){S.seen=S.seen||[];if(!S.seen.includes(q.aid))S.seen.push(q.aid)}const tp=S.tp[q.t]||(S.tp[q.t]={ok:0,n:0});tp.n++;if(good)tp.ok++;
+  Z.ans.push({q,pick:q.o[k]});
+  if(good){Z.ok++;Z.combo++}else{Z.bad++;Z.combo=0}
+  if(!good&&!S.fallos.some(f=>f.q===q.q)){S.fallos.unshift({q:q.q,a:q.a,o:q.o,e:q.e,h:q.h,t:q.t,fix:q.fix,aid:q.aid});S.fallos=S.fallos.slice(0,60)}
+  if(good&&q.fromF)S.fallos=S.fallos.filter(f=>f.q!==q.q);
+  if(sim){if(good){Z.xp+=6;S.xp+=6}save();app.querySelectorAll('.op').forEach(b=>b.disabled=true);el.classList.add('pick');setTimeout(next,250);return}
+  let gain=0;if(good){gain=Z.hint?5:10;if(Z.combo>=3)gain+=5}else if(Z.hint)gain=-5;
+  Z.xp+=gain;S.xp=Math.max(0,S.xp+gain);save();
+  app.querySelectorAll('.op').forEach((b,j)=>{b.disabled=true;if(q.o[j]===q.a)b.classList.add('ok');else if(j===k)b.classList.add('bad')});
+  if(gain>0)fly(el,'+'+gain+' XP');
+  document.getElementById('after').innerHTML=(Z.hint&&q.h?`<div class="hint"><b>Pista:</b> ${q.h}</div>`:'')+`<div class="exp ${good?'good':'wrong'}"><b class="v">${good?pick(['¡Correcto!','¡Bien hecho!','¡Eso es!','¡Al blanco!']):'No es esa. La buena es: '+q.a}</b><div style="margin:6px 0 0">${rs(q.e)}</div></div>`;
+  document.getElementById('ctl').innerHTML=`<button class="btn" id="bN">${Z.i+1<Z.qs.length?'Siguiente':'Ver resultado'}</button>`;
+  const bn=document.getElementById('bN');bn.onclick=next;bn.focus();
+}
+function next(){Z.i++;if(Z.i<Z.qs.length)quiz();else results()}
+function results(){
+  clearInterval(timer);view='res';
+  const sim=Z.mode==='sim',n=Z.qs.length;
+  if(Z.mode==='mis'&&S.mis!==today()){S.mis=today();Z.xp+=30;S.xp+=30}
+  save();
+  const r1=rankOf(S.xp),up=r1>Z.r0,nota=Z.ok/n*10,pen=Math.max(0,(Z.ok-Z.bad*.25)/n*10);
+  const wrong=Z.ans.filter(a=>a.pick!==a.q.a);
+  const msg=Z.ok/n>=.8?'Muy buen trabajo. Así se asciende.':Z.ok/n>=.5?'Vas bien. Repasa los fallos y sube el listón.':'Cada fallo de hoy es un acierto en el examen. Repásalos.';
+  app.innerHTML=`<main class="wrap" style="max-width:780px;padding-top:24px">
+  <div class="qcard">
+    <span class="chip">${Z.title}</span>
+    ${sim?`<p class="big st">${fmt(Math.round(pen*100)/100)}</p><p style="margin:0">Nota sobre 10 restando 0,25 por fallo · ${Z.ok} aciertos, ${Z.bad} fallos, ${Z.blank} en blanco · tiempo ${clock()}</p><p style="color:var(--mute);margin:4px 0 0">Sin penalización sería: ${fmt(Math.round(nota*100)/100)}${(Date.now()-Z.t0)>7200000?' · Te has pasado de los 120 minutos del examen':''}</p>`
+    :`<p class="big st">+${Z.xp} XP</p><p style="margin:0">${Z.ok} de ${n} correctas. ${msg}</p>`}
+    ${sim?`<p style="margin:10px 0 0"><b>+${Z.xp} XP</b> por los aciertos.</p>`:''}
+    ${up?`<div class="rup">${ins(r1)}<div><b class="st" style="font-size:24px">¡Ascenso! Ahora eres ${RANKS[r1][0]}</b><br>Sigue así hasta Suboficial Mayor.</div></div>`:''}
+    <div class="row"><button class="btn" id="bH2">Volver a la base</button>${wrong.length?'<button class="btn alt" id="bR">Repetir los fallos ahora</button>':''}</div>
+  </div>
+  ${wrong.length?`<h3>Revisa ${wrong.length===1?'tu fallo':'tus '+wrong.length+' fallos'}</h3><div class="rev">${wrong.map(a=>`<details><summary>${(a.q.q.replace(/<br>/g,' ').replace(/<span class="mx">[\s\S]*?<\/span>/g,'[matriz]').replace(/<img[^>]*>/g,'').replace(/<[^>]+>/g,'').trim())||'Pregunta de '+tname(a.q.t)}</summary><div>${/<img|class="mx"/.test(a.q.q)?rs(a.q.q):''}</div><p><b>Correcta:</b> ${a.q.a}${a.pick?` · <b>Marcaste:</b> ${a.pick}`:' · En blanco'}</p><div>${rs(a.q.e)}</div></details>`).join('')}</div>`:''}
+  </main>`;
+  document.getElementById('bH2').onclick=()=>{RANKT=0;home()};
+  const br=document.getElementById('bR');if(br)br.onclick=()=>start(wrong.map(a=>({...a.q,o:a.q.fix?a.q.o:shuffle(a.q.o),fromF:true})),'fal','Repetir fallos');
+  window.scrollTo(0,0);
+}
+function fichas(s,i){
+  view='fic';const L=FC[s],c=L[(i+L.length)%L.length];i=(i+L.length)%L.length;
+  app.innerHTML=`<main class="wrap" style="max-width:780px">
+  <div class="qtop"><button class="x" id="bX" aria-label="Volver">×</button><div class="prog"><i style="width:${(i+1)/L.length*100}%"></i></div><span class="cnt">${i+1}/${L.length}</span></div>
+  <div class="tabs"><button class="tab" data-s="m" aria-pressed="${s==='m'}">Matemáticas</button><button class="tab" data-s="f" aria-pressed="${s==='f'}">Física</button></div>
+  <div class="card3d"><button class="flip" id="fl" aria-label="Dar la vuelta a la ficha"><span class="face front st">${c[0]}<small style="font-family:Saira">Piensa la fórmula y toca para comprobar</small></span><span class="face back">${c[1]}</span></button></div>
+  <div class="row"><button class="btn alt" id="bP">Anterior</button><button class="btn" id="bNx">Siguiente</button><button class="btn alt" id="bRa">Al azar</button></div>
+  </main>`;
+  document.getElementById('bX').onclick=home;
+  const fl=document.getElementById('fl');fl.onclick=()=>fl.classList.toggle('on');
+  document.getElementById('bP').onclick=()=>fichas(s,i-1);
+  document.getElementById('bNx').onclick=()=>fichas(s,i+1);
+  document.getElementById('bRa').onclick=()=>fichas(s,R(0,L.length-1));
+  app.querySelectorAll('.tab').forEach(b=>b.onclick=()=>fichas(b.dataset.s,0));
+}
+document.addEventListener('click',e=>{const im=e.target.closest('.qtext img,.exp img');if(im){const z=document.createElement('div');z.id='zoom';z.innerHTML=`<button aria-label="Cerrar">×</button><img src="${im.src}" alt="">`;z.onclick=()=>z.remove();document.body.appendChild(z)}});
+document.addEventListener('keydown',e=>{
+  if(view==='quiz'){if(/^[1-4]$/.test(e.key)){const b=app.querySelector(`.op[data-k="${+e.key-1}"]`);if(b&&!b.disabled)b.click()}else if(/^[a-dA-D]$/.test(e.key)){const b=app.querySelector(`.op[data-k="${'abcd'.indexOf(e.key.toLowerCase())}"]`);if(b&&!b.disabled)b.click()}}
+  if(view==='fic'){if(e.key==='ArrowRight')document.getElementById('bNx').click();if(e.key==='ArrowLeft')document.getElementById('bP').click()}
+});
+(async()=>{if(CRED){try{const r=await rpc('ascenso_login',{p_name:CRED.n,p_pin:CRED.p});if(r.error){CRED=null;try{localStorage.removeItem('ascenso-cred')}catch(e){}login(ERR[r.error]);return}const st=r.state||{};if(st.ts&&st.ts>(S.ts||0))S=Object.assign(blank(),st);cloud=true}catch(e){}home()}else{let loc=null;try{loc=localStorage.getItem('ascenso-local')}catch(e){}loc?home():login()}})();
+}
+</script>
+</body>
+</html>
