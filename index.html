@@ -549,7 +549,7 @@ function quiz(){
   <div class="qtop"><button class="x" id="bX" aria-label="Salir">×</button><div class="prog"><i style="width:${Z.i/Z.qs.length*100}%"></i></div><span class="cnt">${Z.i+1}/${Z.qs.length}</span>${sim?`<span class="chip" id="tm">${clock()}</span>`:''}</div>
   <div class="qcard"><span class="chip">${tname(q.t)}</span> ${!sim&&Z.combo>=3?`<span class="chip combo">Racha ×${Z.combo}</span>`:''}
     <div class="qtext">${rs(q.q)}</div>
-    <div class="opts ${q.o.every(o=>o.length<=2)?'let':''}">${q.o.map((o,k)=>`<button class="op" data-k="${k}"><span class="k">${'ABCDEFGHIJ'[k]}</span><span>${o}</span></button>`).join('')}</div>
+    <div class="opts ${q.fix&&q.o.every(o=>/^[A-J]$/.test(o))?'let':''}">${q.o.map((o,k)=>`<button class="op" data-k="${k}"><span class="k">${'ABCDEFGHIJ'[k]}</span><span>${o}</span></button>`).join('')}</div>
     <div id="after"></div>
     <div class="row" id="ctl">${sim?'<button class="btn alt" id="bB">Dejar en blanco</button>':(q.h?'<button class="btn alt" id="bH">Pista (−5 XP)</button>':'')}</div>
   </div></main>`;
