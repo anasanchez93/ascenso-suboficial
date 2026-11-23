@@ -455,7 +455,7 @@ const dstr=d=>d.toLocaleDateString('sv-SE');
 const today=()=>dstr(new Date());
 const yest=()=>{const d=new Date();d.setDate(d.getDate()-1);return dstr(d)};
 const streakNow=()=>(S.lastDay===today()||S.lastDay===yest())?S.streak:0;
-const BUILD='20261123-4';
+const BUILD='20261123-5';
 fetch(location.pathname+'?check='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/const BUILD='([^']+)'/);if(m&&m[1]!==BUILD){try{if(sessionStorage.getItem('asc-upd')===m[1])return;sessionStorage.setItem('asc-upd',m[1])}catch(e){}location.replace(location.pathname+'?v='+m[1])}}).catch(()=>{});
 const SB='https://xdrjltzsglascuhptpyl.supabase.co',SBK='sb_publishable_JDGgZvNOTWK4SBQ8RDMvmw_4Np7U1zC';
 async function rpc(fn,args){const r=await fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SBK,'Content-Type':'application/json'},body:JSON.stringify(args||{})});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
@@ -487,8 +487,13 @@ function touch(){const d=today();if(S.today.d!==d)S.today={d,n:0,ok:0}}
 function mastery(t){const x=S.tp[t];return x&&x.n?x.ok/x.n:null}
 function weakest(list,n){return[...list].sort((a,b)=>{const s=t=>{const x=S.tp[t]||{ok:0,n:0};return(x.ok+1)/(x.n+2)+Math.random()*.25};return s(a)-s(b)}).slice(0,n)}
 
+function toast(m){const d=document.createElement('div');d.textContent=m;d.style.cssText='position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:min(560px,92vw);background:#b33a2c;color:#fff;padding:14px 18px;border-radius:12px;z-index:60;font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.3)';document.body.appendChild(d);setTimeout(()=>d.remove(),9000)}
+function decay(){const t=today();if(!S.lastActive){S.lastActive=S.lastDay||t;return 0}
+  const d=Math.round((new Date(t)-new Date(S.lastActive))/864e5),pen=Math.max(0,d-2)*50;
+  if(!S.gap||S.gap.from!==S.lastActive)S.gap={from:S.lastActive,paid:0,floor:RANKS[Math.max(0,rankOf(S.xp)-1)][1]};
+  const due=pen-S.gap.paid;if(due<=0)return 0;const before=S.xp;S.xp=Math.max(Math.min(S.gap.floor,S.xp),S.xp-due);S.gap.paid=pen;const lost=before-S.xp;if(lost>0)save();return lost}
 function home(){
-  view='home';clearInterval(timer);touch();
+  view='home';clearInterval(timer);touch();const lost=decay();if(lost)setTimeout(()=>toast(`Has perdido ${lost} XP por llevar días sin estudiar. ¡A recuperarlos!`),300);
   const i=rankOf(S.xp),nx=RANKS[i+1],pct=nx?Math.round((S.xp-RANKS[i][1])/(nx[1]-RANKS[i][1])*100):100;
   const tn=S.today.n,ringP=Math.min(tn/GOAL,1),C=2*Math.PI*18,done=S.mis===today();
   const list=TOP[sub],weak=weakest(list.map(x=>x[0]).filter(t=>S.tp[t]&&S.tp[t].n>=3),1)[0];
@@ -525,7 +530,7 @@ function home(){
       <button class="tool" data-sim="m"><strong>Simulacro · Matemáticas</strong><span>Como el examen: 60 preguntas en 120 minutos, −0,25 por fallo.</span></button>
       <button class="tool" data-sim="f"><strong>Simulacro · Física</strong><span>Como el examen: 60 preguntas en 120 minutos, −0,25 por fallo.</span></button>
     </div>
-    <p class="foot">${CRED?`Has entrado como <b>${esc(CRED.n)}</b>: tu progreso se guarda en tu cuenta y te sigue al móvil o al ordenador. <button class="btn alt" id="bOut" style="min-height:36px;padding:4px 12px;margin-left:6px">Cerrar sesión</button>`:'Tu progreso se guarda solo en este navegador.'} Ejercicios con datos aleatorios: nunca salen dos iguales. Temas del temario de acceso a Suboficial (Matemáticas y Física).</p>
+    <p class="foot"><b>Puntos:</b> acierto +10 XP (+15 con 3 seguidos) · fallo −3 · en blanco 0 · misión del día +30 · cada día sin estudiar a partir del segundo −50 (nunca más de un rango de golpe).<br>${CRED?`Has entrado como <b>${esc(CRED.n)}</b>: tu progreso se guarda en tu cuenta y te sigue al móvil o al ordenador. <button class="btn alt" id="bOut" style="min-height:36px;padding:4px 12px;margin-left:6px">Cerrar sesión</button>`:'Tu progreso se guarda solo en este navegador.'} Ejercicios con datos aleatorios: nunca salen dos iguales. Temas del temario de acceso a Suboficial (Matemáticas y Física).</p>
   </main>`;
   document.getElementById('bMis').onclick=async e=>{const q=[];const w=weakest(ALL,4);await need([...S.fallos.slice(0,3).filter(x=>x.aid).map(x=>(ACAD.find(y=>y.id===x.aid)||{}).t),...w.flatMap(t=>(acadByT[t]||[]).map(x=>x.t))].filter(Boolean),e.currentTarget);S.fallos.slice(0,3).forEach(x=>q.push({...x,fromF:true}));while(q.length<10)q.push(Q(Math.random()<.6?pick(w):pick(ALL)));start(shuffle(q),'mis','Misión del día')};
   app.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{sub=b.dataset.s;home()});
@@ -553,17 +558,18 @@ function quiz(){
     <div class="qtext">${rs(q.q)}</div>
     <div class="opts ${q.fix&&q.o.every(o=>/^[A-J]$/.test(o))?'let':''}">${q.o.map((o,k)=>`<button class="op" data-k="${k}"><span class="k">${'ABCDEFGHIJ'[k]}</span><span>${o}</span></button>`).join('')}</div>
     <div id="after"></div>
-    <div class="row" id="ctl">${sim?'<button class="btn alt" id="bB">Dejar en blanco</button>':(q.h?'<button class="btn alt" id="bH">Pista (−5 XP)</button>':'')}</div>
+    <div class="row" id="ctl">${sim?'<button class="btn alt" id="bB">Dejar en blanco</button>':(q.h?'<button class="btn alt" id="bH">Pista (−5 XP)</button>':'')+'<button class="btn alt" id="bB2">Dejar en blanco (0 XP)</button>'}</div>
   </div></main>`;
   document.getElementById('bX').onclick=()=>{clearInterval(timer);home()};
   app.querySelectorAll('.op').forEach(b=>b.onclick=()=>answer(+b.dataset.k,b));
   const bh=document.getElementById('bH');if(bh)bh.onclick=()=>{Z.hint=true;bh.remove();document.getElementById('after').innerHTML=`<div class="hint"><b>Pista:</b> ${q.h}</div>`};
   const bb=document.getElementById('bB');if(bb)bb.onclick=()=>{Z.blank++;Z.ans.push({q,pick:null});next()};
+  const bb2=document.getElementById('bB2');if(bb2)bb2.onclick=blankAnswer;
 }
 function fly(el,txt){const r=el.getBoundingClientRect(),s=document.createElement('span');s.className='fly';s.textContent=txt;s.style.left=(r.right-70)+'px';s.style.top=(r.top)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),1000)}
 function answer(k,el){
   if(Z.locked)return;Z.locked=true;
-  const q=Z.qs[Z.i],good=q.o[k]===q.a,sim=Z.mode==='sim';touch();
+  const q=Z.qs[Z.i],good=q.o[k]===q.a,sim=Z.mode==='sim';touch();S.lastActive=today();
   S.today.n++;if(good)S.today.ok++;
   if(S.today.n===10&&S.lastDay!==today()){S.streak=S.lastDay===yest()?S.streak+1:1;S.lastDay=today()}
   if(q.aid){S.seen=S.seen||[];if(!S.seen.includes(q.aid))S.seen.push(q.aid)}const tp=S.tp[q.t]||(S.tp[q.t]={ok:0,n:0});tp.n++;if(good)tp.ok++;
@@ -571,15 +577,25 @@ function answer(k,el){
   if(good){Z.ok++;Z.combo++}else{Z.bad++;Z.combo=0}
   if(!good&&!S.fallos.some(f=>f.q===q.q)){S.fallos.unshift({q:q.q,a:q.a,o:q.o,e:q.e,h:q.h,t:q.t,fix:q.fix,aid:q.aid});S.fallos=S.fallos.slice(0,60)}
   if(good&&q.fromF)S.fallos=S.fallos.filter(f=>f.q!==q.q);
-  if(sim){if(good){Z.xp+=6;S.xp+=6}save();app.querySelectorAll('.op').forEach(b=>b.disabled=true);el.classList.add('pick');setTimeout(next,250);return}
-  let gain=0;if(good){gain=Z.hint?5:10;if(Z.combo>=3)gain+=5}else if(Z.hint)gain=-5;
+  if(sim){if(good){Z.xp+=6;S.xp+=6}else{Z.xp-=3;S.xp=Math.max(0,S.xp-3)}save();app.querySelectorAll('.op').forEach(b=>b.disabled=true);el.classList.add('pick');setTimeout(next,250);return}
+  let gain=0;if(good){gain=Z.hint?5:10;if(Z.combo>=3)gain+=5}else gain=Z.hint?-8:-3;
   Z.xp+=gain;S.xp=Math.max(0,S.xp+gain);save();
   app.querySelectorAll('.op').forEach((b,j)=>{b.disabled=true;if(q.o[j]===q.a)b.classList.add('ok');else if(j===k)b.classList.add('bad')});
-  if(gain>0)fly(el,'+'+gain+' XP');
+  if(gain)fly(el,(gain>0?'+':'−')+Math.abs(gain)+' XP');
   document.getElementById('after').innerHTML=(Z.hint&&q.h?`<div class="hint"><b>Pista:</b> ${q.h}</div>`:'')+`<div class="exp ${good?'good':'wrong'}"><b class="v">${good?pick(['¡Correcto!','¡Bien hecho!','¡Eso es!','¡Al blanco!']):'No es esa. La buena es: '+q.a}</b><div style="margin:6px 0 0">${rs(q.e)}</div></div>`;
   document.getElementById('ctl').innerHTML=`<button class="btn" id="bN">${Z.i+1<Z.qs.length?'Siguiente':'Ver resultado'}</button>`;
   const bn=document.getElementById('bN');bn.onclick=next;bn.focus();
 }
+function blankAnswer(){if(Z.locked)return;Z.locked=true;const q=Z.qs[Z.i];touch();S.lastActive=today();S.today.n++;
+  if(S.today.n===10&&S.lastDay!==today()){S.streak=S.lastDay===yest()?S.streak+1:1;S.lastDay=today()}
+  if(q.aid){S.seen=S.seen||[];if(!S.seen.includes(q.aid))S.seen.push(q.aid)}
+  const tp=S.tp[q.t]||(S.tp[q.t]={ok:0,n:0});tp.n++;Z.blank++;Z.combo=0;Z.ans.push({q,pick:null});
+  if(!S.fallos.some(f=>f.q===q.q)){S.fallos.unshift({q:q.q,a:q.a,o:q.o,e:q.e,h:q.h,t:q.t,fix:q.fix,aid:q.aid});S.fallos=S.fallos.slice(0,60)}
+  save();app.querySelectorAll('.op').forEach((b,j)=>{b.disabled=true;if(q.o[j]===q.a)b.classList.add('ok')});
+  const RS=typeof rs==='function'?rs:(x=>x);
+  document.getElementById('after').innerHTML=`<div class="exp"><b class="v">En blanco, sin penalización. La correcta es: ${q.a}</b><div style="margin:6px 0 0">${RS(q.e)}</div></div>`;
+  document.getElementById('ctl').innerHTML=`<button class="btn" id="bN">${Z.i+1<Z.qs.length?'Siguiente':'Ver resultado'}</button>`;
+  const bn=document.getElementById('bN');bn.onclick=next;bn.focus()}
 function next(){Z.i++;if(Z.i<Z.qs.length)quiz();else results()}
 function results(){
   clearInterval(timer);view='res';
@@ -593,8 +609,8 @@ function results(){
   <div class="qcard">
     <span class="chip">${Z.title}</span>
     ${sim?`<p class="big st">${fmt(Math.round(pen*100)/100)}</p><p style="margin:0">Nota sobre 10 restando 0,25 por fallo · ${Z.ok} aciertos, ${Z.bad} fallos, ${Z.blank} en blanco · tiempo ${clock()}</p><p style="color:var(--mute);margin:4px 0 0">Sin penalización sería: ${fmt(Math.round(nota*100)/100)}${(Date.now()-Z.t0)>7200000?' · Te has pasado de los 120 minutos del examen':''}</p>`
-    :`<p class="big st">+${Z.xp} XP</p><p style="margin:0">${Z.ok} de ${n} correctas. ${msg}</p>`}
-    ${sim?`<p style="margin:10px 0 0"><b>+${Z.xp} XP</b> por los aciertos.</p>`:''}
+    :`<p class="big st">${Z.xp>=0?'+':'−'}${Math.abs(Z.xp)} XP</p><p style="margin:0">${Z.ok} de ${n} correctas. ${msg}</p>`}
+    ${sim?`<p style="margin:10px 0 0"><b>${Z.xp>=0?'+':'−'}${Math.abs(Z.xp)} XP</b> (+6 por acierto, −3 por fallo).</p>`:''}
     ${up?`<div class="rup">${ins(r1)}<div><b class="st" style="font-size:24px">¡Ascenso! Ahora eres ${RANKS[r1][0]}</b><br>Sigue así hasta Suboficial Mayor.</div></div>`:''}
     <div class="row"><button class="btn" id="bH2">Volver a la base</button>${wrong.length?'<button class="btn alt" id="bR">Repetir los fallos ahora</button>':''}</div>
   </div>
